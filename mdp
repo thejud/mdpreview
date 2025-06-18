@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# mdp - Markdown Preview with fzf
+# Usage: mdp [directory]
+# If no directory is provided, uses current directory
+
+# Use provided directory or current directory
+dir="${1:-.}"
+
+# Find markdown files and let user select with fzf
+selected=$(find "$dir" -name "*.md" -type f | fzf --prompt="Select markdown file: ")
+
+# Exit if no file selected
+if [ -z "$selected" ]; then
+    echo "No file selected"
+    exit 1
+fi
+
+# Preview the selected file
+./mdpreview.py "$selected"
