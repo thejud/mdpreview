@@ -17,4 +17,4 @@ if [ -z "$selected" ]; then
 fi
 
 # Preview the selected file
-./mdpreview.py "$selected"
+mdpreview.py -s "$selected"
