@@ -1,6 +1,6 @@
 # Markdown Preview CLI Tool
 
-A fast, lightweight CLI tool for converting Markdown to HTML and opening it in your browser with intelligent caching.
+A fast, lightweight CLI tool for converting Markdown to HTML and opening it in your browser with intelligent caching. Includes an interactive file selector (`mdp`) for quick markdown browsing with fzf.
 
 ## Features
 
@@ -13,7 +13,9 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 
 ## Prerequisites
 
-**uv** is required to run this tool. uv is a fast Python package installer and resolver that handles dependencies automatically.
+### Required
+- **uv** - Fast Python package installer (handles dependencies automatically)
+- **fzf** - Command-line fuzzy finder (for `mdp` interactive mode)
 
 ### Install uv
 
@@ -29,6 +31,15 @@ brew install uv
 ```
 
 For more installation options, visit: https://docs.astral.sh/uv/
+
+### Install fzf (for mdp script)
+
+```bash
+# Using Homebrew (macOS)
+brew install fzf
+
+# Or see https://github.com/junegunn/fzf#installation
+```
 
 ## Installation
 
@@ -57,8 +68,13 @@ When you run the script for the first time, `uv` will automatically:
 # Convert and open README.md in default browser
 ./mdpreview.py README.md
 
+# Interactive file selection with fzf
+./mdp                      # Browse current directory
+./mdp ~/Documents          # Browse specific directory
+
 # Or if added to PATH
 mdpreview.py README.md
+mdp ~/notes
 ```
 
 ### Advanced Usage
@@ -169,6 +185,15 @@ The tool will fall back to creating the HTML file and showing the path if browse
 ./mdpreview.py README.md
 ```
 
+### Browse and preview markdown files interactively
+```bash
+# Find and preview any markdown file in current directory
+./mdp
+
+# Browse documentation folder
+./mdp docs/
+```
+
 ### Preview documentation with Chrome
 ```bash
 ./mdpreview.py docs/api.md -g    # Using short option
@@ -191,6 +216,7 @@ The tool will fall back to creating the HTML file and showing the path if browse
 ```
 mdpreview/
 ├── mdpreview.py          # Main CLI script with inline dependencies
+├── mdp                   # Interactive file selector using fzf
 ├── pyproject.toml        # Project metadata
 ├── INSTALL.md           # This file
 └── README.md            # Project documentation
@@ -229,4 +255,20 @@ Set up a custom task in `.vscode/tasks.json`:
 }
 ```
 
-The tool is now ready to use! It provides a fast, efficient way to preview Markdown files with professional styling and intelligent caching.
+## Limitations
+
+- **Single file preview** - Each invocation previews one markdown file
+- **No image support** - Images in markdown are not displayed
+- **Local files only** - Cannot preview remote URLs
+- **No live reload** - Changes require re-running the command
+
+These limitations keep the tool fast and simple for its primary use case: quickly viewing markdown files with beautiful formatting.
+
+## Performance Benefits
+
+- **Instant startup** - No heavy dependencies or frameworks
+- **Cached rendering** - Previously viewed files open instantly
+- **Minimal resource usage** - Just converts and displays
+- **Zero configuration** - Works immediately with uv
+
+The tool is now ready to use! It provides an extremely fast and simple way to preview Markdown files with professional GitHub-like styling.
