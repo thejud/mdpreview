@@ -1,4 +1,10 @@
-#!/usr/bin/env python3
+#!/usr/bin/env uv run
+# /// script
+# dependencies = [
+#   "markdown>=3.0",
+#   "pygments",
+# ]
+# ///
 """
 Markdown Preview Tool
 
