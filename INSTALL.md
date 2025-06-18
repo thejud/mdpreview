@@ -63,7 +63,12 @@ mdpreview.py README.md
 
 ### Advanced Usage
 ```bash
-# Open with specific browser
+# Open with specific browser (using short options)
+./mdpreview.py document.md -g              # Google Chrome
+./mdpreview.py document.md -s              # Safari
+./mdpreview.py document.md -f              # Firefox
+
+# Or using long form
 ./mdpreview.py document.md -b "Google Chrome"
 ./mdpreview.py document.md -b "Safari"
 ./mdpreview.py document.md -b "Firefox"
@@ -166,6 +171,8 @@ The tool will fall back to creating the HTML file and showing the path if browse
 
 ### Preview documentation with Chrome
 ```bash
+./mdpreview.py docs/api.md -g    # Using short option
+# or
 ./mdpreview.py docs/api.md -b "Google Chrome"
 ```
 
