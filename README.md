@@ -40,5 +40,3 @@ mdpreview/
 ├── README.md            # This file
 └── INSTALL.md           # Detailed installation guide
 ```
-
-This tool is separate from the MCP Hello server project and can be used independently for any markdown preview needs.
