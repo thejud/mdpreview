@@ -24,7 +24,7 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 ./mdpreview.py document.md -f    # Firefox
 ```
 
-The script uses `uv` with inline dependencies - no setup required!
+The script uses `uv` with inline dependencies - no setup required! (Make sure `uv` is installed: https://docs.astral.sh/uv/)
 
 ## Installation
 

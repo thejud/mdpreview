@@ -11,9 +11,28 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 - ✅ **Multiple browser support** (Chrome, Safari, Firefox)
 - ✅ **Markdown extensions** (tables, TOC, fenced code, etc.)
 
+## Prerequisites
+
+**uv** is required to run this tool. uv is a fast Python package installer and resolver that handles dependencies automatically.
+
+### Install uv
+
+```bash
+# Using curl (recommended)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Or using pip
+pip install uv
+
+# Or using Homebrew (macOS)
+brew install uv
+```
+
+For more installation options, visit: https://docs.astral.sh/uv/
+
 ## Installation
 
-The script uses `uv` with inline dependencies - no setup required!
+The script uses `uv` with inline dependencies - no additional setup required after installing uv!
 
 1. **Make the script executable** (if needed):
    ```bash
@@ -23,8 +42,13 @@ The script uses `uv` with inline dependencies - no setup required!
 2. **Optional: Add to PATH** for global access:
    ```bash
    # Add to ~/.zshrc or ~/.bash_profile
-   export PATH="/path/to/mdpreview:$PATH
+   export PATH="/path/to/mdpreview:$PATH"
    ```
+
+When you run the script for the first time, `uv` will automatically:
+- Create an isolated environment
+- Install the required dependencies (markdown, pygments)
+- Cache everything for fast subsequent runs
 
 ## Usage
 
@@ -115,8 +139,20 @@ cd /path/to/mdpreview
 chmod +x mdpreview.py
 ```
 
+### 'uv' command not found
+This means `uv` is not installed. Install it with:
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 ### Missing dependencies
-Dependencies are handled automatically by `uv` with inline metadata. No manual installation needed.
+Dependencies are handled automatically by `uv` with inline metadata. Make sure `uv` is installed:
+```bash
+# Check if uv is installed
+uv --version
+
+# If not installed, see the Prerequisites section above
+```
 
 ### Browser not opening
 The tool will fall back to creating the HTML file and showing the path if browser launching fails.
