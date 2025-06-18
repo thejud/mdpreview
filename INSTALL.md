@@ -13,20 +13,17 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 
 ## Installation
 
-1. **Install dependencies:**
-   ```bash
-   uv sync
-   ```
+The script uses `uv` with inline dependencies - no setup required!
 
-2. **Make the script executable** (already done):
+1. **Make the script executable** (if needed):
    ```bash
    chmod +x mdpreview.py
    ```
 
-3. **Optional: Add to PATH** for global access:
+2. **Optional: Add to PATH** for global access:
    ```bash
    # Add to ~/.zshrc or ~/.bash_profile
-   export PATH="/Volumes/xdrive/juddagnall/Dropbox/01-projects/mcp_hello:$PATH"
+   export PATH="/path/to/mdpreview:$PATH
    ```
 
 ## Usage
@@ -59,18 +56,19 @@ mdpreview.py README.md
 
 ## How It Works
 
-1. **Content Hashing**: Generates SHA256 hash of markdown content
-2. **Cache Check**: Looks for cached HTML in `~/Library/Caches/mdpreview/`
-3. **Conversion**: If not cached, converts markdown to HTML with extensions
-4. **Styling**: Applies GitHub-like CSS with dark mode support
-5. **Browser Launch**: Uses macOS `open` command to launch browser
-6. **Caching**: Saves HTML for future use
+1. **Dependency Management**: Uses `uv` with inline dependencies for zero-setup
+2. **Content Hashing**: Generates SHA256 hash of markdown content
+3. **Cache Check**: Looks for cached HTML in `/tmp/mdpreview/`
+4. **Conversion**: If not cached, converts markdown to HTML with extensions
+5. **Styling**: Applies GitHub-like CSS with dark mode support
+6. **Browser Launch**: Uses macOS `open` command to launch browser
+7. **Caching**: Saves HTML for future use
 
 ## Cache Location
 
 HTML files are cached at:
 ```
-~/Library/Caches/mdpreview/[hash].html
+/tmp/mdpreview/[hash].html
 ```
 
 ## Supported Markdown Features
@@ -106,10 +104,10 @@ HTML files are cached at:
 ### Script not found
 ```bash
 # Make sure you're in the right directory
-cd /Volumes/xdrive/juddagnall/Dropbox/01-projects/mcp_hello
+cd /path/to/mdpreview
 
 # Or use absolute path
-/Volumes/xdrive/juddagnall/Dropbox/01-projects/mcp_hello/mdpreview.py README.md
+/path/to/mdpreview/mdpreview.py README.md
 ```
 
 ### Permission denied
@@ -118,9 +116,7 @@ chmod +x mdpreview.py
 ```
 
 ### Missing dependencies
-```bash
-uv sync
-```
+Dependencies are handled automatically by `uv` with inline metadata. No manual installation needed.
 
 ### Browser not opening
 The tool will fall back to creating the HTML file and showing the path if browser launching fails.
@@ -150,11 +146,11 @@ The tool will fall back to creating the HTML file and showing the path if browse
 ## File Structure
 
 ```
-mcp_hello/
-├── mdpreview.py          # Main CLI script
-├── pyproject.toml        # Dependencies (markdown, pygments)
+mdpreview/
+├── mdpreview.py          # Main CLI script with inline dependencies
+├── pyproject.toml        # Project metadata
 ├── INSTALL.md           # This file
-└── README.md            # MCP server documentation
+└── README.md            # Project documentation
 ```
 
 ## Integration Tips

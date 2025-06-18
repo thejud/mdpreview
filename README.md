@@ -15,9 +15,6 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 ## Quick Start
 
 ```bash
-# Install dependencies
-uv sync
-
 # Basic usage (opens in Firefox by default)
 ./mdpreview.py document.md
 
@@ -26,6 +23,8 @@ uv sync
 ./mdpreview.py document.md -s    # Safari
 ./mdpreview.py document.md -f    # Firefox
 ```
+
+The script uses `uv` with inline dependencies - no setup required!
 
 ## Installation
 

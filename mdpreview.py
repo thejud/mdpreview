@@ -33,8 +33,8 @@ from markdown.extensions import codehilite, fenced_code, tables, toc, nl2br, san
 
 
 def get_cache_dir():
-    """Get the cache directory following macOS conventions."""
-    cache_dir = Path.home() / "Library" / "Caches" / "mdpreview"
+    """Get the cache directory in /tmp/ for fast access."""
+    cache_dir = Path("/tmp") / "mdpreview"
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir
 
