@@ -49,14 +49,14 @@ def get_file_hash(file_path):
         sys.exit(1)
 
 
-def get_github_css():
+def get_github_css(max_width=980):
     """Return GitHub-like CSS styling for markdown."""
-    return """
+    return f"""
     <style>
-    body {
+    body {{
         box-sizing: border-box;
         min-width: 200px;
-        max-width: 980px;
+        max-width: {max_width}px;
         margin: 0 auto;
         padding: 45px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
@@ -64,106 +64,106 @@ def get_github_css():
         line-height: 1.5;
         color: #1f2328;
         background-color: #ffffff;
-    }
+    }}
 
-    @media (prefers-color-scheme: dark) {
-        body {
+    @media (prefers-color-scheme: dark) {{
+        body {{
             color: #e6edf3;
             background-color: #0d1117;
-        }
+        }}
         
-        h1, h2, h3, h4, h5, h6 {
+        h1, h2, h3, h4, h5, h6 {{
             color: #e6edf3;
-        }
+        }}
         
-        code {
+        code {{
             background-color: #21262d;
             color: #f0f6fc;
-        }
+        }}
         
-        pre {
+        pre {{
             background-color: #161b22;
             border: 1px solid #30363d;
-        }
+        }}
         
-        blockquote {
+        blockquote {{
             border-left: 0.25em solid #656d76;
             color: #656d76;
-        }
+        }}
         
-        table th, table td {
+        table th, table td {{
             border: 1px solid #30363d;
-        }
+        }}
         
-        table tr {
+        table tr {{
             background-color: #0d1117;
             border-top: 1px solid #30363d;
-        }
+        }}
         
-        table tr:nth-child(2n) {
+        table tr:nth-child(2n) {{
             background-color: #161b22;
-        }
-    }
+        }}
+    }}
 
-    h1, h2, h3, h4, h5, h6 {
+    h1, h2, h3, h4, h5, h6 {{
         margin-top: 24px;
         margin-bottom: 16px;
         font-weight: 600;
         line-height: 1.25;
-    }
+    }}
 
-    h1 {
+    h1 {{
         font-size: 2em;
         border-bottom: 1px solid #d0d7de;
         padding-bottom: 0.3em;
-    }
+    }}
 
-    h2 {
+    h2 {{
         font-size: 1.5em;
         border-bottom: 1px solid #d0d7de;
         padding-bottom: 0.3em;
-    }
+    }}
 
-    h3 {
+    h3 {{
         font-size: 1.25em;
-    }
+    }}
 
-    h4 {
+    h4 {{
         font-size: 1em;
-    }
+    }}
 
-    h5 {
+    h5 {{
         font-size: 0.875em;
-    }
+    }}
 
-    h6 {
+    h6 {{
         font-size: 0.85em;
         color: #656d76;
-    }
+    }}
 
-    p {
+    p {{
         margin-top: 0;
         margin-bottom: 16px;
-    }
+    }}
 
-    blockquote {
+    blockquote {{
         margin: 0;
         padding: 0 1em;
         color: #656d76;
         border-left: 0.25em solid #d0d7de;
-    }
+    }}
 
-    ul, ol {
+    ul, ol {{
         margin-top: 0;
         margin-bottom: 16px;
         padding-left: 2em;
-    }
+    }}
 
-    li + li {
+    li + li {{
         margin-top: 0.25em;
-    }
+    }}
 
-    code {
+    code {{
         padding: 0.2em 0.4em;
         margin: 0;
         font-size: 85%;
@@ -171,9 +171,9 @@ def get_github_css():
         background-color: #f6f8fa;
         border-radius: 6px;
         font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    }
+    }}
 
-    pre {
+    pre {{
         margin-top: 0;
         margin-bottom: 16px;
         padding: 16px;
@@ -183,9 +183,9 @@ def get_github_css():
         background-color: #f6f8fa;
         border-radius: 6px;
         font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
-    }
+    }}
 
-    pre code {
+    pre code {{
         display: inline;
         max-width: auto;
         padding: 0;
@@ -195,64 +195,64 @@ def get_github_css():
         word-wrap: normal;
         background-color: transparent;
         border: 0;
-    }
+    }}
 
-    table {
+    table {{
         border-spacing: 0;
         border-collapse: collapse;
         margin-top: 0;
         margin-bottom: 16px;
         width: 100%;
         overflow: auto;
-    }
+    }}
 
-    table th {
+    table th {{
         font-weight: 600;
         padding: 6px 13px;
         border: 1px solid #d0d7de;
         background-color: #f6f8fa;
-    }
+    }}
 
-    table td {
+    table td {{
         padding: 6px 13px;
         border: 1px solid #d0d7de;
-    }
+    }}
 
-    table tr {
+    table tr {{
         background-color: #ffffff;
         border-top: 1px solid #c6cbd1;
-    }
+    }}
 
-    table tr:nth-child(2n) {
+    table tr:nth-child(2n) {{
         background-color: #f6f8fa;
-    }
+    }}
 
-    hr {
+    hr {{
         height: 0.25em;
         padding: 0;
         margin: 24px 0;
         background-color: #d0d7de;
         border: 0;
-    }
+    }}
 
-    a {
+    a {{
         color: #0969da;
         text-decoration: none;
-    }
+    }}
 
-    a:hover {
+    a:hover {{
         text-decoration: underline;
-    }
+    }}
 
-    img {
+    img {{
         max-width: 100%;
         height: auto;
-    }
+    }}
     </style>
     """
 
 
-def convert_markdown_to_html(markdown_file, use_cache=True):
+def convert_markdown_to_html(markdown_file, use_cache=True, width=980):
     """Convert markdown file to HTML with caching."""
     file_path = Path(markdown_file)
     
@@ -310,7 +310,7 @@ def convert_markdown_to_html(markdown_file, use_cache=True):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title}</title>
-    {get_github_css()}
+    {get_github_css(width)}
 </head>
 <body>
     {html_content}
@@ -387,6 +387,7 @@ Examples:
     parser.add_argument('-f', '--firefox', action='store_const', const='Firefox', dest='browser', help='Open with Firefox')
     parser.add_argument('--no-cache', action='store_true', help='Skip cache and regenerate HTML')
     parser.add_argument('--clean-cache', action='store_true', help='Clean the cache directory')
+    parser.add_argument('-w', '--width', type=int, default=980, help='Maximum width for the content in pixels (default: 980)')
     
     args = parser.parse_args()
     
@@ -399,7 +400,7 @@ Examples:
         sys.exit(1)
     
     # Convert markdown to HTML
-    html_file = convert_markdown_to_html(args.markdown_file, use_cache=not args.no_cache)
+    html_file = convert_markdown_to_html(args.markdown_file, use_cache=not args.no_cache, width=args.width)
     
     # Open in browser
     open_in_browser(html_file, args.browser)

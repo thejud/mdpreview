@@ -12,6 +12,7 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 - ✅ **Firefox default** browser
 - ✅ **Markdown extensions** (tables, TOC, fenced code, etc.)
 - ✅ **Interactive file selection** with `mdp` script using fzf
+- ✅ **Configurable page width** for better display of wide content
 
 ## Quick Start
 
@@ -27,6 +28,10 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 ./mdpreview.py document.md -g    # Chrome
 ./mdpreview.py document.md -s    # Safari
 ./mdpreview.py document.md -f    # Firefox
+
+# Width control for wide content
+./mdpreview.py document.md --width 1200    # Wide layout (1200px)
+./mdpreview.py document.md -w 600          # Narrow layout (600px)
 ```
 
 The script uses `uv` with inline dependencies - no setup required! (Make sure `uv` is installed: https://docs.astral.sh/uv/)
@@ -55,6 +60,7 @@ mdpreview/
 ├── mdpreview.py          # Main CLI script
 ├── mdp                   # Interactive file selector using fzf
 ├── pyproject.toml        # Python dependencies
+├── test/                 # Test files and examples
 ├── README.md            # This file
 └── INSTALL.md           # Detailed installation guide
 ```
