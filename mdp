@@ -8,7 +8,7 @@
 dir="${1:-.}"
 
 # Find markdown files and let user select with fzf
-selected=$(find "$dir" -name "*.md" -type f | fzf --prompt="Select markdown file: ")
+selected=$(find "$dir" -name "*.md" -type f | fzf --select-1 --prompt="Select markdown file: ")
 
 # Exit if no file selected
 if [ -z "$selected" ]; then
