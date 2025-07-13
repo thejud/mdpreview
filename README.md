@@ -1,3 +1,5 @@
+![MDPreview Logo](media/mdpreview_logo_small.png)
+
 # MDPreview
 
 A fast, lightweight CLI tool for converting Markdown to HTML and opening it in your browser with intelligent caching.
