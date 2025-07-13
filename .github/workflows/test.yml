@@ -36,5 +36,5 @@ jobs:
     
     - name: Test mdpreview script
       run: |
-        ./mdpreview.py --help
-        ./mdpreview.py README.md --no-cache
+        python mdpreview.py --help
+        python mdpreview.py README.md --no-cache
