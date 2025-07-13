@@ -26,6 +26,9 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 # Interactive file selection with fzf
 ./mdp                             # Search in current directory
 ./mdp ~/Documents                 # Search in specific directory
+./mdp -g docs/                    # Search with Chrome browser option
+./mdp README.md                   # Open file directly without fzf
+./mdp -N -- -weird-dir-           # Search in directory starting with '-'
 
 # Browser shortcuts
 ./mdpreview.py document.md -g    # Chrome

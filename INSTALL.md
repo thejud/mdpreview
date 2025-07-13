@@ -72,6 +72,7 @@ When you run the script for the first time, `uv` will automatically:
 # Interactive file selection with fzf
 ./mdp                      # Browse current directory
 ./mdp ~/Documents          # Browse specific directory
+./mdp README.md            # Open file directly without fzf
 
 # Or if added to PATH
 mdpreview.py README.md
@@ -199,6 +200,14 @@ The tool will fall back to creating the HTML file and showing the path if browse
 
 # Browse documentation folder
 ./mdp docs/
+
+# Pass options to mdpreview and search in directories
+./mdp -g docs/                    # Use Chrome, search in docs/
+./mdp -N ~/notes/                 # No cache, search in notes/
+
+# Handle directories starting with '-'
+./mdp -- -my-special-dir-         # Search in '-my-special-dir-'
+./mdp -g -- -docs- -notes-        # Chrome, search multiple dirs with '-'
 ```
 
 ### Preview documentation with Chrome
