@@ -93,6 +93,11 @@ def get_github_css(max_width=980):
         
         table th, table td {{
             border: 1px solid #30363d;
+            color: #e6edf3;
+        }}
+        
+        table th {{
+            background-color: #161b22;
         }}
         
         table tr {{
@@ -210,12 +215,14 @@ def get_github_css(max_width=980):
         font-weight: 600;
         padding: 6px 13px;
         border: 1px solid #d0d7de;
-        background-color: #f6f8fa;
+        background-color: #e1e4e8;
+        color: #1f2328;
     }}
 
     table td {{
         padding: 6px 13px;
         border: 1px solid #d0d7de;
+        color: #1f2328;
     }}
 
     table tr {{
