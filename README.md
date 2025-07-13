@@ -43,7 +43,6 @@ MDPreview provides an extremely fast and simple way to view markdown files in yo
 ### Limitations
 
 - **Single file preview only** - Does not handle multiple files or links between documents
-- **No image support** - Images referenced in markdown won't be displayed
 - **Local files only** - Cannot fetch remote markdown files
 - **Static preview** - No live reload on file changes
 
