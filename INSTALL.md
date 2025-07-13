@@ -92,9 +92,11 @@ mdp ~/notes
 
 # Skip cache (force regeneration)
 ./mdpreview.py document.md --no-cache
+./mdpreview.py document.md -N              # Short form
 
 # Clean cache directory
 ./mdpreview.py --clean-cache
+./mdpreview.py -X                          # Short form
 
 # Get help
 ./mdpreview.py --help

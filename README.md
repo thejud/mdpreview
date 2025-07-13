@@ -33,6 +33,10 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 # Width control for wide content
 ./mdpreview.py document.md --width 1200    # Wide layout (1200px)
 ./mdpreview.py document.md -w 600          # Narrow layout (600px)
+
+# Cache control
+./mdpreview.py document.md -N              # Skip cache, force regeneration
+./mdpreview.py -X                          # Clean cache directory
 ```
 
 The script uses `uv` with inline dependencies - no setup required! (Make sure `uv` is installed: https://docs.astral.sh/uv/)

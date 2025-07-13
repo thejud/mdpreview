@@ -477,8 +477,9 @@ Examples:
   mdpreview.py doc.md -s                   # Open with Safari
   mdpreview.py doc.md -f                   # Open with Firefox
   mdpreview.py doc.md -b "Google Chrome"    # Open with Chrome (long form)
-  mdpreview.py doc.md --no-cache           # Skip cache
-  mdpreview.py --clean-cache               # Clean cache
+  mdpreview.py doc.md -N                   # Skip cache (--no-cache)
+  mdpreview.py -X                          # Clean cache (--clean-cache)
+  mdpreview.py doc.md -w 1200              # Set width to 1200px
         """
     )
     
@@ -487,8 +488,8 @@ Examples:
     parser.add_argument('-g', '--chrome', action='store_const', const='Google Chrome', dest='browser', help='Open with Google Chrome')
     parser.add_argument('-s', '--safari', action='store_const', const='Safari', dest='browser', help='Open with Safari')
     parser.add_argument('-f', '--firefox', action='store_const', const='Firefox', dest='browser', help='Open with Firefox')
-    parser.add_argument('--no-cache', action='store_true', help='Skip cache and regenerate HTML')
-    parser.add_argument('--clean-cache', action='store_true', help='Clean the cache directory')
+    parser.add_argument('-N', '--no-cache', action='store_true', help='Skip cache and regenerate HTML')
+    parser.add_argument('-X', '--clean-cache', action='store_true', help='Clean the cache directory')
     parser.add_argument('-w', '--width', type=int, default=980, help='Maximum width for the content in pixels (default: 980)')
     
     args = parser.parse_args()
