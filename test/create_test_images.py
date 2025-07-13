@@ -40,6 +40,18 @@ with open(test_dir / 'test_image.jpg', 'wb') as f:
     f.write(blue_square_png)
 print("✓ Created test_image.jpg (100x100 blue square)")
 
+# Create a simple GIF (100x100 red square)
+# This is a minimal valid GIF file
+gif_data = base64.b64decode(
+    b'R0lGODlhZABkAPAAAP8AAP///yH5BAAAAAAALAAAAABkAGQAAAKIhI+py+0Po5y02ouz3rz7D4bi'
+    b'SJbmiabqyrbuC8fyTNf2jef6zvf+DwwKh8Si8YhMKpfMpvMJjUqn1Kr1is1qt9yu9wsOi8fksvms'
+    b'fqvf8Lh8Tq/b7/i8fs/v+/+AgYKDhIWGh4iJiouMjY6PkJGSk5SVlpeYmZqbnJ2en6ChoqOkpaanqKkHADs='
+)
+
+with open(test_dir / 'test_image.gif', 'wb') as f:
+    f.write(gif_data)
+print("✓ Created test_image.gif (100x100 red square)")
+
 # Create images subdirectory
 images_dir = test_dir / 'images'
 images_dir.mkdir(exist_ok=True)
