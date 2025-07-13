@@ -30,6 +30,96 @@ from pathlib import Path
 
 import markdown
 from markdown.extensions import codehilite, fenced_code, tables, toc, nl2br, sane_lists
+from markdown.treeprocessors import Treeprocessor
+from markdown.extensions import Extension
+
+
+class LocalImageProcessor(Treeprocessor):
+    """Process local images in markdown and copy them to cache directory."""
+    
+    def __init__(self, md, source_dir, cache_dir, file_hash):
+        super().__init__(md)
+        self.source_dir = Path(source_dir)
+        self.cache_dir = Path(cache_dir)
+        self.file_hash = file_hash
+        self.images_dir = self.cache_dir / f"{file_hash}_images"
+        self.processed_images = set()  # Track processed images to avoid duplicates
+    
+    def run(self, root):
+        """Process all img elements in the document tree."""
+        for element in root.iter('img'):
+            src = element.get('src', '')
+            if src and self._is_local_image(src):
+                new_src = self._process_local_image(src)
+                if new_src:
+                    element.set('src', new_src)
+    
+    def _is_local_image(self, src):
+        """Check if the image source is a local file."""
+        # Skip remote URLs and data URLs
+        if src.startswith(('http://', 'https://', 'data:', '//')):
+            return False
+        return True
+    
+    def _process_local_image(self, src):
+        """Process a local image by copying it to cache."""
+        try:
+            # Resolve the source path
+            if src.startswith('/'):
+                source_path = Path(src)
+            else:
+                source_path = (self.source_dir / src).resolve()
+            
+            # Check if file exists and is an image
+            if not source_path.exists() or not source_path.is_file():
+                print(f"Warning: Image not found: {src}", file=sys.stderr)
+                return None
+            
+            # Check if it's a supported image format
+            if source_path.suffix.lower() not in {'.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp'}:
+                return None
+            
+            # Create images directory if needed
+            self.images_dir.mkdir(exist_ok=True)
+            
+            # Generate destination filename
+            # Use original filename to maintain extensions
+            dest_filename = source_path.name
+            dest_path = self.images_dir / dest_filename
+            
+            # Copy image if not already processed
+            if str(source_path) not in self.processed_images:
+                shutil.copy2(source_path, dest_path)
+                self.processed_images.add(str(source_path))
+            
+            # Return relative path from HTML location
+            return f"{self.file_hash}_images/{dest_filename}"
+            
+        except Exception as e:
+            print(f"Warning: Failed to process image {src}: {e}", file=sys.stderr)
+            return None
+
+
+class LocalImageExtension(Extension):
+    """Markdown extension for processing local images."""
+    
+    def __init__(self, **kwargs):
+        self.config = {
+            'source_dir': ['', 'Source directory for resolving relative paths'],
+            'cache_dir': ['', 'Cache directory for storing images'],
+            'file_hash': ['', 'File hash for organizing cached images']
+        }
+        super().__init__(**kwargs)
+    
+    def extendMarkdown(self, md):
+        """Add the LocalImageProcessor to the markdown processor."""
+        processor = LocalImageProcessor(
+            md,
+            self.getConfig('source_dir'),
+            self.getConfig('cache_dir'),
+            self.getConfig('file_hash')
+        )
+        md.treeprocessors.register(processor, 'local_images', 5)
 
 
 def get_cache_dir():
@@ -291,7 +381,12 @@ def convert_markdown_to_html(markdown_file, use_cache=True, width=980):
         'tables',
         'toc',
         'nl2br',
-        'sane_lists'
+        'sane_lists',
+        LocalImageExtension(
+            source_dir=str(file_path.parent),
+            cache_dir=str(cache_dir),
+            file_hash=file_hash
+        )
     ]
     
     extension_configs = {

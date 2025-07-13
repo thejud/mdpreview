@@ -6,6 +6,7 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 
 - ✅ **GitHub-like styling** with dark mode support
 - ✅ **Intelligent caching** using SHA256 hashes
+- ✅ **Local image support** with automatic copying to cache
 - ✅ **Syntax highlighting** for code blocks
 - ✅ **macOS integration** using the `open` command
 - ✅ **Multiple browser support** (Chrome, Safari, Firefox)
@@ -111,9 +112,13 @@ mdp ~/notes
 
 ## Cache Location
 
-HTML files are cached at:
+HTML files and images are cached at:
 ```
-/tmp/mdpreview/[hash].html
+/tmp/mdpreview/
+├── [hash].html              # Cached HTML files
+└── [hash]_images/           # Copied local images
+    ├── image1.png
+    └── image2.jpg
 ```
 
 ## Supported Markdown Features
@@ -122,7 +127,7 @@ HTML files are cached at:
 - **Code blocks** with syntax highlighting
 - **Tables** with proper styling
 - **Lists** (ordered and unordered)
-- **Links and images**
+- **Links and images** (with automatic local image copying)
 - **Blockquotes**
 - **Horizontal rules**
 - **Table of Contents** (TOC)
@@ -258,7 +263,6 @@ Set up a custom task in `.vscode/tasks.json`:
 ## Limitations
 
 - **Single file preview** - Each invocation previews one markdown file
-- **No image support** - Images in markdown are not displayed
 - **Local files only** - Cannot preview remote URLs
 - **No live reload** - Changes require re-running the command
 

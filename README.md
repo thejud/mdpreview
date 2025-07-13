@@ -6,6 +6,7 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 
 - ✅ **GitHub-like styling** with dark mode support
 - ✅ **Intelligent caching** using SHA256 hashes
+- ✅ **Local image support** with automatic copying to cache
 - ✅ **Syntax highlighting** for code blocks
 - ✅ **macOS integration** using the `open` command
 - ✅ **Multiple browser support** with shortcuts
@@ -40,10 +41,31 @@ The script uses `uv` with inline dependencies - no setup required! (Make sure `u
 
 MDPreview provides an extremely fast and simple way to view markdown files in your browser with professional GitHub-like styling. Perfect for quickly previewing documentation, notes, or README files without the overhead of a full markdown editor.
 
+## Image Support
+
+MDPreview automatically handles images in your markdown files:
+
+- **Local images** are copied to the cache directory alongside the HTML
+- **Remote images** (http/https URLs) work without any changes
+- **Relative paths** are resolved based on the markdown file location
+- **Supported formats**: PNG, JPG, JPEG, GIF, SVG, WebP
+
+Example markdown with images:
+```markdown
+![Local diagram](./images/diagram.png)
+![Screenshot](screenshot.jpg)
+![Remote logo](https://example.com/logo.png)
+```
+
+When you preview a markdown file containing local images, MDPreview:
+1. Detects all local image references
+2. Copies them to a subdirectory in the cache
+3. Updates the HTML to reference the cached copies
+4. Preserves the cache for fast subsequent views
+
 ### Limitations
 
 - **Single file preview only** - Does not handle multiple files or links between documents
-- **No image support** - Images referenced in markdown won't be displayed
 - **Local files only** - Cannot fetch remote markdown files
 - **Static preview** - No live reload on file changes
 
