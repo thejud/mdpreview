@@ -20,31 +20,36 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 ## Quick Start
 
 ```bash
-# Basic usage (opens in Firefox by default)
-./mdpreview.py document.md
+# Install the tool (choose one method)
+pipx install mdpreview              # Recommended: isolated environment
+pip install mdpreview               # Global installation
+uv tool install mdpreview           # Using uv
 
-# Interactive file selection with fzf
-./mdp                             # Search in current directory
-./mdp ~/Documents                 # Search in specific directory
-./mdp -g docs/                    # Search with Chrome browser option
-./mdp README.md                   # Open file directly without fzf
-./mdp -N -- -weird-dir-           # Search in directory starting with '-'
+# Basic usage (opens in Firefox by default)
+mdpreview document.md
+
+# Interactive file selection with fzf (if mdp is available)
+mdp                                 # Search in current directory
+mdp ~/Documents                     # Search in specific directory
+mdp -g docs/                        # Search with Chrome browser option
+mdp README.md                       # Open file directly without fzf
+mdp -N -- -weird-dir-              # Search in directory starting with '-'
 
 # Browser shortcuts
-./mdpreview.py document.md -g    # Chrome
-./mdpreview.py document.md -s    # Safari
-./mdpreview.py document.md -f    # Firefox
+mdpreview document.md -g            # Chrome
+mdpreview document.md -s            # Safari
+mdpreview document.md -f            # Firefox
 
 # Width control for wide content
-./mdpreview.py document.md --width 1200    # Wide layout (1200px)
-./mdpreview.py document.md -w 600          # Narrow layout (600px)
+mdpreview document.md --width 1200  # Wide layout (1200px)
+mdpreview document.md -w 600        # Narrow layout (600px)
 
 # Cache control
-./mdpreview.py document.md -N              # Skip cache, force regeneration
-./mdpreview.py -X                          # Clean cache directory
+mdpreview document.md -N            # Skip cache, force regeneration
+mdpreview -X                        # Clean cache directory
 ```
 
-The script uses `uv` with inline dependencies - no setup required! (Make sure `uv` is installed: https://docs.astral.sh/uv/)
+If using the script directly from the repository, prefix commands with `./` (e.g., `./mdpreview.py`).
 
 ## Use Case
 
@@ -82,7 +87,71 @@ These limitations are by design to keep the tool fast, simple, and focused on it
 
 ## Installation
 
-See [INSTALL.md](INSTALL.md) for detailed installation and usage instructions.
+### As a Stand-alone Tool
+
+MDPreview can be installed as a stand-alone command-line tool using several methods:
+
+#### Using pipx (Recommended)
+[pipx](https://pypa.github.io/pipx/) installs Python applications in isolated environments:
+
+```bash
+pipx install mdpreview
+```
+
+#### Using pip
+Install globally with pip:
+
+```bash
+pip install mdpreview
+```
+
+#### Using uv
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager:
+
+```bash
+uv tool install mdpreview
+```
+
+#### From Source
+Clone and install from the repository:
+
+```bash
+git clone https://github.com/yourusername/mdpreview.git
+cd mdpreview
+pip install .
+```
+
+#### Development Installation
+For development with editable installation:
+
+```bash
+git clone https://github.com/yourusername/mdpreview.git
+cd mdpreview
+pip install -e .
+
+# Or using uv (faster):
+uv pip install -e .
+```
+
+### Using the Script Directly
+
+The repository includes a self-contained script that uses uv's inline dependency management:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/mdpreview.git
+cd mdpreview
+
+# Make the script executable
+chmod +x mdpreview.py
+
+# Run directly (uv will handle dependencies automatically)
+./mdpreview.py document.md
+```
+
+**Note about the `mdp` interactive file selector**: The `mdp` script requires `fzf` to be installed (`brew install fzf` on macOS). When installing via pip/pipx/uv, the mdp script is included in the package.
+
+See [INSTALL.md](INSTALL.md) for more detailed installation options and usage instructions.
 
 ## Project Structure
 
