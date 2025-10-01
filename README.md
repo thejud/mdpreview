@@ -127,7 +127,7 @@ sequenceDiagram
 ### Prerequisites
 
 - **Bun** runtime (https://bun.sh)
-- **macOS** (Linux/Windows support coming soon)
+- **Supported platforms**: macOS (ARM64/Intel), Linux (x64/ARM64), Windows (x64)
 - **Modern web browser** (Firefox, Chrome, or Safari)
 
 ### Option 1: Install from Source
@@ -150,7 +150,7 @@ alias mdpreview="bun run /path/to/mdpreview/src/cli.ts"
 ### Option 2: Build Standalone Executable
 
 ```bash
-# Build a single executable (includes all dependencies)
+# Build for your current platform (defaults to macOS ARM64)
 bun run build
 
 # This creates a standalone binary: ./mdpreview
@@ -159,6 +159,31 @@ bun run build
 # Move to your PATH for system-wide access
 sudo mv mdpreview /usr/local/bin/
 ```
+
+#### Cross-Platform Builds
+
+Build standalone executables for multiple platforms:
+
+```bash
+# Build for specific platforms
+bun run build:macos-arm64      # macOS Apple Silicon (M1/M2/M3)
+bun run build:macos-x64        # macOS Intel
+bun run build:linux-x64        # Linux x64
+bun run build:linux-arm64      # Linux ARM64
+bun run build:windows-x64      # Windows x64
+
+# Build for all platforms at once
+bun run build:all
+
+# Outputs to dist/ directory:
+# - dist/mdpreview-macos-arm64
+# - dist/mdpreview-macos-x64
+# - dist/mdpreview-linux-x64
+# - dist/mdpreview-linux-arm64
+# - dist/mdpreview-windows-x64.exe
+```
+
+**Note:** You can cross-compile from any platform to any other platform. For example, build Windows executables from macOS or Linux executables from Windows.
 
 ### Option 3: Quick Alias
 
@@ -272,12 +297,13 @@ mdpreview/
 
 ## Limitations
 
-- **Single file preview only** - Does not handle multiple files or links between documents
 - **Local files only** - Cannot fetch remote markdown files
 - **Static preview** - No live reload on file changes
-- **macOS focused** - Primary support for macOS (Linux/Windows support planned)
+- **Browser integration** - Browser launching primarily tested on macOS (uses `open` command)
 
 These limitations are by design to keep the tool fast, simple, and focused on its primary use case: quick markdown preview.
+
+**Note:** While executables can be built for Linux and Windows, browser launching may require adjustments for those platforms. The core markdown processing works on all platforms.
 
 ## Migrating from Python Version
 
