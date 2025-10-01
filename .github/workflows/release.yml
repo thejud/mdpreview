@@ -1,0 +1,119 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test Before Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Run all tests
+        run: bun test
+
+  build-and-release:
+    name: Build and Release
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build for all platforms
+        run: bun run build:all
+
+      - name: Create release archives
+        run: |
+          cd dist
+          tar -czf mdpreview-macos-arm64.tar.gz mdpreview-macos-arm64
+          tar -czf mdpreview-macos-x64.tar.gz mdpreview-macos-x64
+          tar -czf mdpreview-linux-x64.tar.gz mdpreview-linux-x64
+          tar -czf mdpreview-linux-arm64.tar.gz mdpreview-linux-arm64
+          zip mdpreview-windows-x64.zip mdpreview-windows-x64.exe
+          cd ..
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum *.tar.gz *.zip > SHA256SUMS.txt
+          cd ..
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release v${{ steps.get_version.outputs.VERSION }}
+          body: |
+            ## MDPreview v${{ steps.get_version.outputs.VERSION }}
+
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+
+            ### Downloads
+
+            Choose the appropriate binary for your platform:
+
+            - **macOS Apple Silicon (M1/M2/M3)**: `mdpreview-macos-arm64.tar.gz`
+            - **macOS Intel**: `mdpreview-macos-x64.tar.gz`
+            - **Linux x64**: `mdpreview-linux-x64.tar.gz`
+            - **Linux ARM64**: `mdpreview-linux-arm64.tar.gz`
+            - **Windows x64**: `mdpreview-windows-x64.zip`
+
+            ### Installation
+
+            ```bash
+            # macOS/Linux - extract and move to PATH
+            tar -xzf mdpreview-*.tar.gz
+            sudo mv mdpreview-* /usr/local/bin/mdpreview
+            chmod +x /usr/local/bin/mdpreview
+
+            # Windows - extract and add to PATH
+            # Extract mdpreview-windows-x64.zip
+            # Add the directory to your PATH environment variable
+            ```
+
+            ### Verification
+
+            Verify the download with checksums:
+            ```bash
+            sha256sum -c SHA256SUMS.txt
+            ```
+          files: |
+            dist/mdpreview-macos-arm64.tar.gz
+            dist/mdpreview-macos-x64.tar.gz
+            dist/mdpreview-linux-x64.tar.gz
+            dist/mdpreview-linux-arm64.tar.gz
+            dist/mdpreview-windows-x64.zip
+            dist/SHA256SUMS.txt
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
