@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeAll, afterAll } from "bun:test";
-import { main } from "../../src/cli";
+import { mainNoBrowser as main } from "../../src/cli";
 import { existsSync, rmSync, readFileSync, writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";

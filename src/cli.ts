@@ -143,6 +143,92 @@ Examples:
 }
 
 /**
+ * Main CLI function without browser opening (for testing)
+ * @param args - Command-line arguments
+ * @returns Exit code (0 for success, 1 for error)
+ */
+export async function mainNoBrowser(args: string[]): Promise<number> {
+  const options = parseArgs(args);
+
+  // Show help
+  if (options.help) {
+    showHelp();
+    return 0;
+  }
+
+  // Clean cache
+  if (options.cleanCache) {
+    cleanCache();
+    return 0;
+  }
+
+  // Require markdown file
+  if (!options.markdownFile) {
+    console.error("Error: No markdown file specified");
+    console.log("Use -h or --help for usage information");
+    return 1;
+  }
+
+  // Resolve absolute path
+  const markdownPath = resolve(options.markdownFile);
+
+  // Check if file exists
+  if (!existsSync(markdownPath)) {
+    console.error(`Error: File not found: ${markdownPath}`);
+    return 1;
+  }
+
+  try {
+    // Calculate content hash
+    const hash = getFileHash(markdownPath);
+
+    // Check cache
+    if (shouldUseCache(hash, options.noCache)) {
+      const cachedHtml = getCachedHtml(hash);
+      if (cachedHtml) {
+        const cacheDir = getCacheDir();
+        const cachePath = resolve(cacheDir, `${hash}.html`);
+        console.log(`Using cached version: ${cachePath}`);
+        // Skip browser opening for tests
+        return 0;
+      }
+    }
+
+    // Read markdown file
+    const markdown = readFileSync(markdownPath, "utf-8");
+
+    // Convert markdown to HTML
+    let html = convertMarkdown(markdown);
+
+    // Process images
+    const sourceDir = dirname(markdownPath);
+    const cacheDir = getCacheDir();
+    const imageProcessor = new LocalImageProcessor();
+    html = imageProcessor.processImages(html, sourceDir, cacheDir, hash);
+
+    // Process mermaid diagrams
+    const mermaidProcessor = new MermaidProcessor();
+    html = mermaidProcessor.processMermaidBlocks(html);
+
+    // Generate complete HTML document
+    const title = basename(markdownPath, ".md");
+    const styles = getGithubCSS(options.width);
+    const fullHtml = generateHtml(title, html, styles);
+
+    // Write to cache
+    const cachePath = writeCachedHtml(hash, fullHtml);
+    console.log(`Generated HTML: ${cachePath}`);
+
+    // Skip browser opening for tests
+
+    return 0;
+  } catch (error) {
+    console.error("Error processing markdown:", error);
+    return 1;
+  }
+}
+
+/**
  * Main CLI function
  * @param args - Command-line arguments
  * @returns Exit code (0 for success, 1 for error)
