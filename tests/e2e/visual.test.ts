@@ -1,17 +1,52 @@
-import { describe, test, expect, beforeAll, afterAll } from "bun:test";
+import { describe, test, expect, beforeAll, afterAll, mock } from "bun:test";
 import { chromium, type Browser, type Page } from "playwright";
-import { main } from "../../src/cli";
-import { existsSync, rmSync, writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import { existsSync, rmSync, writeFileSync, mkdirSync, readFileSync } from "fs";
+import { join, dirname, basename } from "path";
 import { tmpdir } from "os";
-import { getCacheDir } from "../../src/core/cache";
+import { getCacheDir, cleanCache, writeCachedHtml } from "../../src/core/cache";
 import { getFileHash } from "../../src/core/hash";
+import { convertMarkdown } from "../../src/core/markdown";
+import { LocalImageProcessor } from "../../src/processors/images";
+import { MermaidProcessor } from "../../src/processors/mermaid";
+import { getGithubCSS } from "../../src/rendering/styles";
+import { generateHtml } from "../../src/rendering/template";
 
 const TEST_DIR = join(tmpdir(), "mdpreview-visual-test");
 const TEST_MD = join(TEST_DIR, "visual-test.md");
 
 let browser: Browser;
 let page: Page;
+
+/**
+ * Generate HTML from markdown without opening browser
+ * This mimics the main() function but skips openInBrowser()
+ */
+async function generateHtmlWithoutBrowser(markdownPath: string): Promise<string> {
+  const hash = getFileHash(markdownPath);
+  const markdown = readFileSync(markdownPath, "utf-8");
+
+  // Convert markdown
+  let html = convertMarkdown(markdown);
+
+  // Process images
+  const sourceDir = dirname(markdownPath);
+  const cacheDir = getCacheDir();
+  const imageProcessor = new LocalImageProcessor();
+  html = imageProcessor.processImages(html, sourceDir, cacheDir, hash);
+
+  // Process mermaid
+  const mermaidProcessor = new MermaidProcessor();
+  html = mermaidProcessor.processMermaidBlocks(html);
+
+  // Generate full HTML
+  const title = basename(markdownPath, ".md");
+  const styles = getGithubCSS(980);
+  const fullHtml = generateHtml(title, html, styles);
+
+  // Write to cache
+  const cachePath = writeCachedHtml(hash, fullHtml);
+  return cachePath;
+}
 
 beforeAll(async () => {
   // Create test directory
@@ -50,13 +85,9 @@ describe("Visual E2E Tests with Playwright", () => {
 `;
     writeFileSync(TEST_MD, markdown);
 
-    // Generate HTML
-    await main([TEST_MD, "-X"]); // Clean cache first
-    await main([TEST_MD]);
-
-    // Get the cached HTML path
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
+    // Generate HTML without opening browser
+    cleanCache();
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
     // Load in browser
     await page.goto(`file://${htmlPath}`);
@@ -90,10 +121,7 @@ describe("Visual E2E Tests with Playwright", () => {
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
-
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("load");
@@ -114,10 +142,8 @@ graph TD
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -178,10 +204,8 @@ graph LR
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -231,10 +255,8 @@ sequenceDiagram
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -273,10 +295,8 @@ graph TD
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -308,10 +328,8 @@ console.log("mermaid");
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("load");
@@ -345,10 +363,8 @@ graph TD
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -382,10 +398,8 @@ graph LR
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("networkidle");
@@ -410,10 +424,8 @@ This tests that GitHub-like styles are applied.
 `;
     writeFileSync(TEST_MD, markdown);
 
-    await main([TEST_MD]);
+    const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    const hash = getFileHash(TEST_MD);
-    const htmlPath = join(getCacheDir(), `${hash}.html`);
 
     await page.goto(`file://${htmlPath}`);
     await page.waitForLoadState("load");
@@ -430,10 +442,7 @@ graph TD
     A --> B
 \`\`\``;
     writeFileSync(TEST_MD, markdown2);
-    await main([TEST_MD]);
-
-    const hash2 = getFileHash(TEST_MD);
-    const htmlPath2 = join(getCacheDir(), `${hash2}.html`);
+    const htmlPath2 = await generateHtmlWithoutBrowser(TEST_MD);
 
     await page.goto(`file://${htmlPath2}`);
     await page.waitForLoadState("networkidle");
