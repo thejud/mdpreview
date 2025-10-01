@@ -12,7 +12,7 @@ import { generateHtml } from "./rendering/template";
 import { openInBrowser, type BrowserOptions } from "./browser/launcher";
 
 export interface CliOptions {
-  markdownFile?: string;
+  markdownFiles: string[];
   browser: BrowserOptions;
   width: number;
   noCache: boolean;
@@ -27,6 +27,7 @@ export interface CliOptions {
  */
 export function parseArgs(args: string[]): CliOptions {
   const options: CliOptions = {
+    markdownFiles: [],
     browser: {},
     width: 980,
     noCache: false,
@@ -101,9 +102,9 @@ export function parseArgs(args: string[]): CliOptions {
       continue;
     }
 
-    // Markdown file (positional argument)
-    if (!arg.startsWith("-") && !options.markdownFile) {
-      options.markdownFile = arg;
+    // Markdown files (positional arguments)
+    if (!arg.startsWith("-")) {
+      options.markdownFiles.push(arg);
     }
   }
 
@@ -117,10 +118,10 @@ function showHelp(): void {
   console.log(`
 mdpreview - Convert Markdown to HTML and open in browser
 
-Usage: mdpreview [options] <markdown_file>
+Usage: mdpreview [options] <markdown_file> [markdown_file2] [...]
 
 Positional Arguments:
-  markdown_file         Markdown file to convert
+  markdown_file         Markdown file(s) to convert (can specify multiple)
 
 Options:
   -h, --help            Show this help message
@@ -134,12 +135,76 @@ Options:
 
 Examples:
   mdpreview README.md                    # Open in Firefox (default)
+  mdpreview foo.md bar.md                # Open multiple files
   mdpreview document.md -g               # Open in Google Chrome
   mdpreview document.md -s               # Open in Safari
   mdpreview wide-content.md -w 1200     # Custom width
   mdpreview document.md -N               # Skip cache
   mdpreview -X                           # Clean all cache
 `);
+}
+
+/**
+ * Process a single markdown file and return the HTML cache path
+ * @param markdownFile - Path to markdown file
+ * @param options - CLI options
+ * @returns Cache path of generated HTML, or null on error
+ */
+async function processFile(markdownFile: string, options: CliOptions): Promise<string | null> {
+  // Resolve absolute path
+  const markdownPath = resolve(markdownFile);
+
+  // Check if file exists
+  if (!existsSync(markdownPath)) {
+    console.error(`Error: File not found: ${markdownPath}`);
+    return null;
+  }
+
+  try {
+    // Calculate content hash
+    const hash = getFileHash(markdownPath);
+
+    // Check cache
+    if (shouldUseCache(hash, options.noCache)) {
+      const cachedHtml = getCachedHtml(hash);
+      if (cachedHtml) {
+        const cacheDir = getCacheDir();
+        const cachePath = resolve(cacheDir, `${hash}.html`);
+        console.log(`Using cached version: ${cachePath}`);
+        return cachePath;
+      }
+    }
+
+    // Read markdown file
+    const markdown = readFileSync(markdownPath, "utf-8");
+
+    // Convert markdown to HTML
+    let html = convertMarkdown(markdown);
+
+    // Process images
+    const sourceDir = dirname(markdownPath);
+    const cacheDir = getCacheDir();
+    const imageProcessor = new LocalImageProcessor();
+    html = imageProcessor.processImages(html, sourceDir, cacheDir, hash);
+
+    // Process mermaid diagrams
+    const mermaidProcessor = new MermaidProcessor();
+    html = mermaidProcessor.processMermaidBlocks(html);
+
+    // Generate complete HTML document
+    const title = basename(markdownPath, ".md");
+    const styles = getGithubCSS(options.width);
+    const fullHtml = generateHtml(title, html, styles);
+
+    // Write to cache
+    const cachePath = writeCachedHtml(hash, fullHtml);
+    console.log(`Generated HTML: ${cachePath}`);
+
+    return cachePath;
+  } catch (error) {
+    console.error("Error processing markdown:", error);
+    return null;
+  }
 }
 
 /**
@@ -163,69 +228,23 @@ export async function mainNoBrowser(args: string[]): Promise<number> {
   }
 
   // Require markdown file
-  if (!options.markdownFile) {
+  if (options.markdownFiles.length === 0) {
     console.error("Error: No markdown file specified");
     console.log("Use -h or --help for usage information");
     return 1;
   }
 
-  // Resolve absolute path
-  const markdownPath = resolve(options.markdownFile);
-
-  // Check if file exists
-  if (!existsSync(markdownPath)) {
-    console.error(`Error: File not found: ${markdownPath}`);
-    return 1;
-  }
-
-  try {
-    // Calculate content hash
-    const hash = getFileHash(markdownPath);
-
-    // Check cache
-    if (shouldUseCache(hash, options.noCache)) {
-      const cachedHtml = getCachedHtml(hash);
-      if (cachedHtml) {
-        const cacheDir = getCacheDir();
-        const cachePath = resolve(cacheDir, `${hash}.html`);
-        console.log(`Using cached version: ${cachePath}`);
-        // Skip browser opening for tests
-        return 0;
-      }
+  // Process each file
+  let hasErrors = false;
+  for (const file of options.markdownFiles) {
+    const cachePath = await processFile(file, options);
+    if (cachePath === null) {
+      hasErrors = true;
     }
-
-    // Read markdown file
-    const markdown = readFileSync(markdownPath, "utf-8");
-
-    // Convert markdown to HTML
-    let html = convertMarkdown(markdown);
-
-    // Process images
-    const sourceDir = dirname(markdownPath);
-    const cacheDir = getCacheDir();
-    const imageProcessor = new LocalImageProcessor();
-    html = imageProcessor.processImages(html, sourceDir, cacheDir, hash);
-
-    // Process mermaid diagrams
-    const mermaidProcessor = new MermaidProcessor();
-    html = mermaidProcessor.processMermaidBlocks(html);
-
-    // Generate complete HTML document
-    const title = basename(markdownPath, ".md");
-    const styles = getGithubCSS(options.width);
-    const fullHtml = generateHtml(title, html, styles);
-
-    // Write to cache
-    const cachePath = writeCachedHtml(hash, fullHtml);
-    console.log(`Generated HTML: ${cachePath}`);
-
     // Skip browser opening for tests
-
-    return 0;
-  } catch (error) {
-    console.error("Error processing markdown:", error);
-    return 1;
   }
+
+  return hasErrors ? 1 : 0;
 }
 
 /**
@@ -249,70 +268,25 @@ export async function main(args: string[]): Promise<number> {
   }
 
   // Require markdown file
-  if (!options.markdownFile) {
+  if (options.markdownFiles.length === 0) {
     console.error("Error: No markdown file specified");
     console.log("Use -h or --help for usage information");
     return 1;
   }
 
-  // Resolve absolute path
-  const markdownPath = resolve(options.markdownFile);
-
-  // Check if file exists
-  if (!existsSync(markdownPath)) {
-    console.error(`Error: File not found: ${markdownPath}`);
-    return 1;
-  }
-
-  try {
-    // Calculate content hash
-    const hash = getFileHash(markdownPath);
-
-    // Check cache
-    if (shouldUseCache(hash, options.noCache)) {
-      const cachedHtml = getCachedHtml(hash);
-      if (cachedHtml) {
-        const cacheDir = getCacheDir();
-        const cachePath = resolve(cacheDir, `${hash}.html`);
-        console.log(`Using cached version: ${cachePath}`);
-        openInBrowser(cachePath, options.browser);
-        return 0;
-      }
+  // Process each file
+  let hasErrors = false;
+  for (const file of options.markdownFiles) {
+    const cachePath = await processFile(file, options);
+    if (cachePath === null) {
+      hasErrors = true;
+    } else {
+      // Open in browser
+      openInBrowser(cachePath, options.browser);
     }
-
-    // Read markdown file
-    const markdown = readFileSync(markdownPath, "utf-8");
-
-    // Convert markdown to HTML
-    let html = convertMarkdown(markdown);
-
-    // Process images
-    const sourceDir = dirname(markdownPath);
-    const cacheDir = getCacheDir();
-    const imageProcessor = new LocalImageProcessor();
-    html = imageProcessor.processImages(html, sourceDir, cacheDir, hash);
-
-    // Process mermaid diagrams
-    const mermaidProcessor = new MermaidProcessor();
-    html = mermaidProcessor.processMermaidBlocks(html);
-
-    // Generate complete HTML document
-    const title = basename(markdownPath, ".md");
-    const styles = getGithubCSS(options.width);
-    const fullHtml = generateHtml(title, html, styles);
-
-    // Write to cache
-    const cachePath = writeCachedHtml(hash, fullHtml);
-    console.log(`Generated HTML: ${cachePath}`);
-
-    // Open in browser
-    openInBrowser(cachePath, options.browser);
-
-    return 0;
-  } catch (error) {
-    console.error("Error processing markdown:", error);
-    return 1;
   }
+
+  return hasErrors ? 1 : 0;
 }
 
 // Run if called directly

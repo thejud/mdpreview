@@ -6,7 +6,23 @@ describe("parseArgs", () => {
     const args = ["README.md"];
     const options = parseArgs(args);
 
-    expect(options.markdownFile).toBe("README.md");
+    expect(options.markdownFiles).toEqual(["README.md"]);
+  });
+
+  test("parses multiple markdown files", () => {
+    const args = ["foo.md", "bar.md", "baz.md"];
+    const options = parseArgs(args);
+
+    expect(options.markdownFiles).toEqual(["foo.md", "bar.md", "baz.md"]);
+  });
+
+  test("parses multiple files with options", () => {
+    const args = ["-g", "foo.md", "bar.md", "-w", "1200"];
+    const options = parseArgs(args);
+
+    expect(options.markdownFiles).toEqual(["foo.md", "bar.md"]);
+    expect(options.browser.chrome).toBe(true);
+    expect(options.width).toBe(1200);
   });
 
   test("parses chrome flag (-g)", () => {
@@ -14,7 +30,7 @@ describe("parseArgs", () => {
     const options = parseArgs(args);
 
     expect(options.browser.chrome).toBe(true);
-    expect(options.markdownFile).toBe("README.md");
+    expect(options.markdownFiles).toEqual(["README.md"]);
   });
 
   test("parses safari flag (-s)", () => {
@@ -108,7 +124,7 @@ describe("parseArgs", () => {
     expect(options.browser.chrome).toBe(true);
     expect(options.width).toBe(1400);
     expect(options.noCache).toBe(true);
-    expect(options.markdownFile).toBe("README.md");
+    expect(options.markdownFiles).toEqual(["README.md"]);
   });
 
   test("defaults width to 980", () => {
@@ -136,21 +152,21 @@ describe("parseArgs", () => {
     const args = ["my document.md"];
     const options = parseArgs(args);
 
-    expect(options.markdownFile).toBe("my document.md");
+    expect(options.markdownFiles).toEqual(["my document.md"]);
   });
 
   test("handles file path with relative path", () => {
     const args = ["./docs/README.md"];
     const options = parseArgs(args);
 
-    expect(options.markdownFile).toBe("./docs/README.md");
+    expect(options.markdownFiles).toEqual(["./docs/README.md"]);
   });
 
   test("handles file path with absolute path", () => {
     const args = ["/Users/test/document.md"];
     const options = parseArgs(args);
 
-    expect(options.markdownFile).toBe("/Users/test/document.md");
+    expect(options.markdownFiles).toEqual(["/Users/test/document.md"]);
   });
 
   test("allows clean-cache without markdown file", () => {
@@ -158,7 +174,7 @@ describe("parseArgs", () => {
     const options = parseArgs(args);
 
     expect(options.cleanCache).toBe(true);
-    expect(options.markdownFile).toBeUndefined();
+    expect(options.markdownFiles).toEqual([]);
   });
 
   test("flags can appear before or after file", () => {
