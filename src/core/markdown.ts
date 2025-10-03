@@ -22,7 +22,7 @@ function configureMarked(options: MarkdownOptions = {}): void {
   // Configure marked with GFM and syntax highlighting
   marked.setOptions({
     gfm,
-    breaks: false, // Don't convert \n to <br> automatically (GFM default)
+    breaks: true, // Convert \n to <br> to match GitHub behavior
     highlight: highlight
       ? (code: string, lang: string) => {
           if (lang && hljs.getLanguage(lang)) {
