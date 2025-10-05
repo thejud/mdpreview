@@ -6,6 +6,10 @@
 # Options starting with '-' are passed through to mdpreview
 # After '--', all arguments are treated as paths (even if they start with '-')
 
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MDPREVIEW_CLI="$SCRIPT_DIR/src/cli.ts"
+
 # Separate mdpreview options and paths
 mdpreview_options=()
 paths=()
@@ -30,22 +34,22 @@ done
 # Check if we have a single file argument
 if [ ${#paths[@]} -eq 1 ] && [ -f "${paths[0]}" ]; then
     # Direct file provided, open it without fzf
-    mdpreview.py "${mdpreview_options[@]}" "${paths[0]}"
+    bun run "$MDPREVIEW_CLI" "${mdpreview_options[@]}" "${paths[0]}"
 else
     # Use provided directories or current directory
     if [ ${#paths[@]} -eq 0 ]; then
         paths=(".")
     fi
-    
+
     # Find markdown files and let user select with fzf
     selected=$(find "${paths[@]}" -name "*.md" -type f 2>/dev/null | fzf --select-1 --prompt="Select markdown file: ")
-    
+
     # Exit if no file selected
     if [ -z "$selected" ]; then
         echo "No file selected"
         exit 1
     fi
-    
+
     # Preview the selected file with any additional options
-    mdpreview.py "${mdpreview_options[@]}" "$selected"
+    bun run "$MDPREVIEW_CLI" "${mdpreview_options[@]}" "$selected"
 fi
