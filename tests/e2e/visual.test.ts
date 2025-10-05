@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeAll, afterAll, mock } from "bun:test";
+import { describe, test, expect, beforeAll, beforeEach, afterEach, afterAll, mock } from "bun:test";
 import { chromium, type Browser, type Page } from "playwright";
 import { existsSync, rmSync, writeFileSync, mkdirSync, readFileSync } from "fs";
 import { join, dirname, basename } from "path";
@@ -58,11 +58,19 @@ beforeAll(async () => {
 
   // Launch browser
   browser = await chromium.launch({ headless: true });
+});
+
+beforeEach(async () => {
+  // Create a fresh page for each test to avoid contamination
   page = await browser.newPage();
 });
 
-afterAll(async () => {
+afterEach(async () => {
+  // Close the page after each test
   await page?.close();
+});
+
+afterAll(async () => {
   await browser?.close();
 
   // Clean up
@@ -117,19 +125,24 @@ describe("Visual E2E Tests with Playwright", () => {
   test("renders remote images correctly", async () => {
     const markdown = `# Remote Image Test
 
-![Remote](https://via.placeholder.com/150x100)
+![Remote](https://example.com/image.png)
+![Protocol Relative](//example.com/image.jpg)
+![Data URI](data:image/png;base64,iVBORw0KGgoAAAANS)
 `;
     writeFileSync(TEST_MD, markdown);
 
     const htmlPath = await generateHtmlWithoutBrowser(TEST_MD);
 
-    await page.goto(`file://${htmlPath}`);
-    await page.waitForLoadState("load");
+    // Read the generated HTML to verify remote URLs are unchanged
+    const htmlContent = readFileSync(htmlPath, "utf-8");
 
-    // Check remote image
-    const imgSrc = await page.locator("img").getAttribute("src");
-    expect(imgSrc).toContain("https://");
-    expect(imgSrc).toContain("placeholder");
+    // Remote URLs should be preserved as-is (not copied to cache)
+    expect(htmlContent).toContain('src="https://example.com/image.png"');
+    expect(htmlContent).toContain('src="//example.com/image.jpg"');
+    expect(htmlContent).toContain('src="data:image/png;base64,iVBORw0KGgoAAAANS"');
+
+    // Verify they're not in the cache directory
+    expect(htmlContent).not.toContain('_images/image.png');
   });
 
   test("renders mermaid diagrams with toggle", async () => {
