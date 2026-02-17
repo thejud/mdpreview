@@ -2,16 +2,17 @@
 
 # MDPreview
 
-A fast, lightweight CLI tool for converting Markdown to HTML and opening it in your browser with intelligent caching. Now powered by Bun for even faster performance!
+A fast, lightweight CLI tool for converting Markdown to HTML and opening it in your browser with intelligent caching. Powered by Bun for fast performance.
 
 ## Features
 
 - ✅ **GitHub-like styling** with automatic dark mode support
+- ✅ **Light/dark mode override** via `-l`/`-d` flags
 - ✅ **Lightning-fast** with Bun runtime and intelligent caching using SHA256 hashes
 - ✅ **Local image support** with automatic copying to cache
 - ✅ **Mermaid diagrams** with interactive toggle between diagram and source code
 - ✅ **Syntax highlighting** for 100+ programming languages
-- ✅ **macOS integration** using the `open` command
+- ✅ **Multiple files** — open several markdown files at once
 - ✅ **Multiple browser support** (Firefox, Chrome, Safari)
 - ✅ **Markdown extensions** (GitHub Flavored Markdown, tables, fenced code, etc.)
 - ✅ **Configurable page width** for better display of wide content
@@ -22,18 +23,51 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 # Basic usage (opens in Firefox by default)
 ./mdpreview document.md
 
+# Multiple files
+./mdpreview doc1.md doc2.md doc3.md
+
 # Browser shortcuts
 ./mdpreview document.md -g    # Chrome
 ./mdpreview document.md -s    # Safari
 ./mdpreview document.md -f    # Firefox
 
+# Theme control
+./mdpreview document.md -l    # Force light mode
+./mdpreview document.md -d    # Force dark mode
+                              # (default: follows system preference)
+
 # Width control for wide content
-./mdpreview document.md --width 1200    # Wide layout (1200px)
-./mdpreview document.md -w 600          # Narrow layout (600px)
+./mdpreview document.md -w 1200    # Wide layout (1200px)
+./mdpreview document.md -w 600     # Narrow layout (600px)
 
 # Cache control
-./mdpreview document.md -N              # Skip cache, force regeneration
-./mdpreview -X                          # Clean cache directory
+./mdpreview document.md -N         # Skip cache, force regeneration
+./mdpreview -X                     # Clean cache directory
+```
+
+### mdp — Interactive Launcher
+
+The `mdp` script wraps `mdpreview` with an `fzf` file picker for fast interactive use:
+
+```bash
+# Pick a markdown file from the current directory
+mdp
+
+# Pick from a specific directory
+mdp ~/docs
+
+# Open a file directly (skips fzf)
+mdp README.md
+
+# Pass options through to mdpreview
+mdp -d README.md    # dark mode
+mdp -w 1200         # wide layout
+```
+
+`mdp` defaults to Chrome and light mode. Add it to your `PATH` by symlinking:
+
+```bash
+ln -s /path/to/mdpreview/mdp ~/.local/bin/mdp
 ```
 
 ## Use Case
@@ -65,7 +99,7 @@ When you preview a markdown file containing local images, MDPreview:
 |----------------|-----------------|
 | `![Local PNG](test/test_image.png)` | ![Local PNG](test/test_image.png) |
 | `![Local SVG](test/test_image.svg)` | ![Local SVG](test/test_image.svg) |
-| `![Remote](https://via.placeholder.com/150x80/0969da/ffffff?text=Remote+Image)` | ![Remote](https://via.placeholder.com/150x80/0969da/ffffff?text=Remote+Image) |
+| `![Remote](https://raw.githubusercontent.com/thejud/mdpreview/main/media/mdpreview_logo_small.png)` | ![Remote](https://raw.githubusercontent.com/thejud/mdpreview/main/media/mdpreview_logo_small.png) |
 
 ## Mermaid Diagram Support
 
@@ -129,12 +163,13 @@ sequenceDiagram
 - **Bun** runtime (https://bun.sh)
 - **Supported platforms**: macOS (ARM64/Intel), Linux (x64/ARM64), Windows (x64)
 - **Modern web browser** (Firefox, Chrome, or Safari)
+- **fzf** (optional, for the `mdp` interactive launcher)
 
 ### Option 1: Install from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/mdpreview.git
+git clone https://github.com/thejud/mdpreview.git
 cd mdpreview
 
 # Install dependencies
@@ -143,8 +178,8 @@ bun install
 # Run directly
 bun run src/cli.ts document.md
 
-# Or create an alias in your shell config (~/.zshrc or ~/.bashrc)
-alias mdpreview="bun run /path/to/mdpreview/src/cli.ts"
+# Or use the mdp launcher (add to PATH)
+ln -s "$PWD/mdp" ~/.local/bin/mdp
 ```
 
 ### Option 2: Build Standalone Executable
@@ -183,37 +218,34 @@ bun run build:all
 # - dist/mdpreview-windows-x64.exe
 ```
 
-**Note:** You can cross-compile from any platform to any other platform. For example, build Windows executables from macOS or Linux executables from Windows.
-
-### Option 3: Quick Alias
-
-Add to your `~/.zshrc` or `~/.bashrc`:
-
-```bash
-alias mdpreview="bun run /path/to/mdpreview/src/cli.ts"
-```
+**Note:** You can cross-compile from any platform to any other platform.
 
 ## Usage
 
 ```
-Usage: mdpreview [options] [markdown_file]
+Usage: mdpreview [options] <markdown_file> [markdown_file2] [...]
 
 Options:
-  -h, --help              Show this help message
-  -b, --browser BROWSER   Browser to open with (e.g., "Google Chrome", "Safari", "Firefox")
-  -g, --chrome            Open with Google Chrome
-  -s, --safari            Open with Safari
-  -f, --firefox           Open with Firefox (default)
-  -N, --no-cache          Skip cache and regenerate HTML
-  -X, --clean-cache       Clean the cache directory
-  -w, --width WIDTH       Maximum width for the content in pixels (default: 980)
+  -h, --help            Show this help message
+  -b, --browser BROWSER Browser to open with (e.g., "Google Chrome", "Safari")
+  -g, --chrome          Open with Google Chrome
+  -s, --safari          Open with Safari
+  -f, --firefox         Open with Firefox (default)
+  -l, --light           Force light mode theme
+  -d, --dark            Force dark mode theme
+  -w, --width WIDTH     Maximum width for content in pixels (default: 980)
+  -N, --no-cache        Skip cache and regenerate HTML
+  -X, --clean-cache     Clean the cache directory
 
 Examples:
-  mdpreview README.md                    # Open in Firefox (default)
-  mdpreview document.md -g               # Open in Chrome
-  mdpreview document.md -w 1200          # Custom width
-  mdpreview document.md -N               # Force regeneration
-  mdpreview -X                           # Clean cache
+  mdpreview README.md                    # Open in Firefox (default, auto theme)
+  mdpreview foo.md bar.md                # Open multiple files
+  mdpreview document.md -g               # Open in Google Chrome
+  mdpreview document.md -l               # Force light mode
+  mdpreview document.md -d               # Force dark mode
+  mdpreview wide-content.md -w 1200      # Custom width
+  mdpreview document.md -N               # Skip cache
+  mdpreview -X                           # Clean all cache
 ```
 
 ## Caching
@@ -250,11 +282,6 @@ bun test tests/unit/hash.test.ts
 
 # Run E2E visual tests (uses Playwright)
 bun test tests/e2e/visual.test.ts
-
-# Test statistics
-# - 180 total tests
-# - 366 assertions
-# - 100% pass rate
 ```
 
 ## Project Structure
@@ -279,10 +306,9 @@ mdpreview/
 │   ├── unit/                     # Unit tests
 │   ├── integration/              # Integration tests
 │   └── e2e/                      # End-to-end tests (Playwright)
-├── package.json                  # Dependencies
-├── tsconfig.json                 # TypeScript configuration
-├── README.md                     # This file
-└── INSTALL.md                    # Detailed installation guide
+├── mdp                           # Interactive fzf launcher
+├── package.json
+└── tsconfig.json
 ```
 
 ## Technical Details
@@ -293,47 +319,18 @@ mdpreview/
 - **Mermaid**: mermaid.js via CDN
 - **Testing**: Bun's built-in test runner + Playwright for E2E
 - **Type Safety**: TypeScript strict mode
-- **Development Approach**: Test-Driven Development (TDD)
 
 ## Limitations
 
-- **Local files only** - Cannot fetch remote markdown files
-- **Static preview** - No live reload on file changes
-- **Browser integration** - Browser launching primarily tested on macOS (uses `open` command)
-
-These limitations are by design to keep the tool fast, simple, and focused on its primary use case: quick markdown preview.
-
-**Note:** While executables can be built for Linux and Windows, browser launching may require adjustments for those platforms. The core markdown processing works on all platforms.
-
-## Migrating from Python Version
-
-The new Bun/TypeScript implementation maintains compatibility with the Python version:
-
-- ✅ Same command-line interface and options
-- ✅ Same cache directory and structure
-- ✅ Same GitHub-like styling
-- ✅ **New**: Mermaid diagram support with interactive toggles
-- ✅ **Faster**: Bun provides better performance than Python
-
-You can safely switch between implementations. The cache is compatible, though the Python version won't recognize mermaid-enhanced HTML files.
-
-## Contributing
-
-Contributions are welcome! This project follows strict Test-Driven Development:
-
-1. Write tests first
-2. Implement feature to pass tests
-3. Ensure all tests pass (`bun test`)
-4. Maintain 100% pass rate
-
-## License
-
-MIT License - see LICENSE file for details
+- **Local files only** — Cannot fetch remote markdown files
+- **Static preview** — No live reload on file changes
+- **Browser launching** — Primarily tested on macOS (uses `open` command); may need adjustment on Linux/Windows
 
 ## Version History
 
-- **v2.0.0** - Complete rewrite in Bun/TypeScript with TDD approach, added Mermaid support
-- **v1.0.0** - Original Python implementation
+- **v3.0.0** — Light/dark mode flags (`-l`/`-d`), multiple file support, self-locating `mdp` script, cross-platform builds
+- **v2.0.0** — Complete rewrite in Bun/TypeScript with TDD, added Mermaid support
+- **v1.0.0** — Original Python implementation
 
 ---
 
