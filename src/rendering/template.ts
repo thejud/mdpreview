@@ -3,9 +3,10 @@
  * @param title - Document title (typically markdown filename)
  * @param content - Rendered markdown HTML content
  * @param styles - Complete <style> tag with CSS
+ * @param theme - Theme mode: 'auto', 'light', or 'dark' (default: 'auto')
  * @returns Complete HTML5 document
  */
-export function generateHtml(title: string, content: string, styles: string): string {
+export function generateHtml(title: string, content: string, styles: string, theme: 'auto' | 'light' | 'dark' = 'auto'): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>

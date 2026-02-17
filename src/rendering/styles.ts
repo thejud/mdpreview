@@ -1,9 +1,163 @@
 /**
- * Generate GitHub-like CSS with configurable max-width
+ * Generate GitHub-like CSS with configurable max-width and theme
  * @param maxWidth - Maximum content width in pixels
+ * @param theme - Theme mode: 'auto', 'light', or 'dark'
  * @returns Complete <style> tag with embedded CSS
  */
-export function getGithubCSS(maxWidth: number): string {
+export function getGithubCSS(maxWidth: number, theme: 'auto' | 'light' | 'dark' = 'auto'): string {
+  // Generate dark mode styles - wrap with media query if auto, apply directly if dark
+  const darkModePrefix = theme === 'auto' ? '@media (prefers-color-scheme: dark) {\n' : '';
+  const darkModeSuffix = theme === 'auto' ? '}\n' : '';
+  const darkModeIndent = theme === 'auto' ? '  ' : '';
+
+  const darkModeStyles = theme === 'light' ? '' : `
+${darkModePrefix}${darkModeIndent}body {
+${darkModeIndent}  color: #e6edf3;
+${darkModeIndent}  background-color: #0d1117;
+${darkModeIndent}}
+
+${darkModeIndent}h1, h2 {
+${darkModeIndent}  border-bottom-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}h6 {
+${darkModeIndent}  color: #7d8590;
+${darkModeIndent}}
+
+${darkModeIndent}a {
+${darkModeIndent}  color: #58a6ff;
+${darkModeIndent}}
+
+${darkModeIndent}code {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}}
+
+${darkModeIndent}pre {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}}
+
+${darkModeIndent}table th {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}  border-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}table td {
+${darkModeIndent}  border-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}table tr {
+${darkModeIndent}  background-color: #0d1117;
+${darkModeIndent}  border-top-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}table tr:nth-child(2n) {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}}
+
+${darkModeIndent}blockquote {
+${darkModeIndent}  color: #7d8590;
+${darkModeIndent}  border-left-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}hr {
+${darkModeIndent}  background-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}/* Dark mode syntax highlighting */
+${darkModeIndent}.hljs {
+${darkModeIndent}  color: #f0f6fc;
+${darkModeIndent}  background: #161b22;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-comment,
+${darkModeIndent}.hljs-quote {
+${darkModeIndent}  color: #8b949e;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-keyword,
+${darkModeIndent}.hljs-selector-tag,
+${darkModeIndent}.hljs-subst {
+${darkModeIndent}  color: #ff7b72;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-number,
+${darkModeIndent}.hljs-literal,
+${darkModeIndent}.hljs-variable,
+${darkModeIndent}.hljs-template-variable,
+${darkModeIndent}.hljs-tag .hljs-attr {
+${darkModeIndent}  color: #79c0ff;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-string,
+${darkModeIndent}.hljs-doctag {
+${darkModeIndent}  color: #a5d6ff;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-title,
+${darkModeIndent}.hljs-section,
+${darkModeIndent}.hljs-selector-id {
+${darkModeIndent}  color: #d2a8ff;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-type,
+${darkModeIndent}.hljs-class .hljs-title {
+${darkModeIndent}  color: #ff7b72;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-tag,
+${darkModeIndent}.hljs-name,
+${darkModeIndent}.hljs-attribute {
+${darkModeIndent}  color: #7ee787;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-regexp,
+${darkModeIndent}.hljs-link {
+${darkModeIndent}  color: #a5d6ff;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-symbol,
+${darkModeIndent}.hljs-bullet {
+${darkModeIndent}  color: #ffa657;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-built_in,
+${darkModeIndent}.hljs-builtin-name {
+${darkModeIndent}  color: #79c0ff;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-meta {
+${darkModeIndent}  color: #8b949e;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-deletion {
+${darkModeIndent}  background-color: #490202;
+${darkModeIndent}}
+
+${darkModeIndent}.hljs-addition {
+${darkModeIndent}  background-color: #033a16;
+${darkModeIndent}}
+
+${darkModeIndent}.mermaid-diagram {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}  border-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}.mermaid-source {
+${darkModeIndent}  background-color: #161b22;
+${darkModeIndent}  border-color: #30363d;
+${darkModeIndent}}
+
+${darkModeIndent}.mermaid-toggle {
+${darkModeIndent}  background-color: #21262d;
+${darkModeIndent}  border-color: #30363d;
+${darkModeIndent}  color: #e6edf3;
+${darkModeIndent}}
+
+${darkModeIndent}.mermaid-toggle:hover {
+${darkModeIndent}  background-color: #30363d;
+${darkModeIndent}}
+${darkModeSuffix}`;
+
   return `<style>
 /* Base styles */
 body {
@@ -261,135 +415,6 @@ input[type="checkbox"] {
   font-weight: bold;
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #e6edf3;
-    background-color: #0d1117;
-  }
-
-  h1, h2 {
-    border-bottom-color: #30363d;
-  }
-
-  h6 {
-    color: #7d8590;
-  }
-
-  a {
-    color: #58a6ff;
-  }
-
-  code {
-    background-color: #161b22;
-  }
-
-  pre {
-    background-color: #161b22;
-  }
-
-  table th {
-    background-color: #161b22;
-    border-color: #30363d;
-  }
-
-  table td {
-    border-color: #30363d;
-  }
-
-  table tr {
-    background-color: #0d1117;
-    border-top-color: #30363d;
-  }
-
-  table tr:nth-child(2n) {
-    background-color: #161b22;
-  }
-
-  blockquote {
-    color: #7d8590;
-    border-left-color: #30363d;
-  }
-
-  hr {
-    background-color: #30363d;
-  }
-
-  /* Dark mode syntax highlighting */
-  .hljs {
-    color: #f0f6fc;
-    background: #161b22;
-  }
-
-  .hljs-comment,
-  .hljs-quote {
-    color: #8b949e;
-  }
-
-  .hljs-keyword,
-  .hljs-selector-tag,
-  .hljs-subst {
-    color: #ff7b72;
-  }
-
-  .hljs-number,
-  .hljs-literal,
-  .hljs-variable,
-  .hljs-template-variable,
-  .hljs-tag .hljs-attr {
-    color: #79c0ff;
-  }
-
-  .hljs-string,
-  .hljs-doctag {
-    color: #a5d6ff;
-  }
-
-  .hljs-title,
-  .hljs-section,
-  .hljs-selector-id {
-    color: #d2a8ff;
-  }
-
-  .hljs-type,
-  .hljs-class .hljs-title {
-    color: #ff7b72;
-  }
-
-  .hljs-tag,
-  .hljs-name,
-  .hljs-attribute {
-    color: #7ee787;
-  }
-
-  .hljs-regexp,
-  .hljs-link {
-    color: #a5d6ff;
-  }
-
-  .hljs-symbol,
-  .hljs-bullet {
-    color: #ffa657;
-  }
-
-  .hljs-built_in,
-  .hljs-builtin-name {
-    color: #79c0ff;
-  }
-
-  .hljs-meta {
-    color: #8b949e;
-  }
-
-  .hljs-deletion {
-    background-color: #490202;
-  }
-
-  .hljs-addition {
-    background-color: #033a16;
-  }
-}
-
 /* Mermaid diagram container styles */
 .mermaid-container {
   margin: 16px 0;
@@ -428,27 +453,6 @@ input[type="checkbox"] {
 .mermaid-toggle:hover {
   background-color: #f3f4f6;
 }
-
-@media (prefers-color-scheme: dark) {
-  .mermaid-diagram {
-    background-color: #161b22;
-    border-color: #30363d;
-  }
-
-  .mermaid-source {
-    background-color: #161b22;
-    border-color: #30363d;
-  }
-
-  .mermaid-toggle {
-    background-color: #21262d;
-    border-color: #30363d;
-    color: #e6edf3;
-  }
-
-  .mermaid-toggle:hover {
-    background-color: #30363d;
-  }
-}
+${darkModeStyles}
 </style>`;
 }

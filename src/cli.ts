@@ -18,6 +18,7 @@ export interface CliOptions {
   noCache: boolean;
   cleanCache: boolean;
   help: boolean;
+  theme: 'auto' | 'light' | 'dark';
 }
 
 /**
@@ -33,6 +34,7 @@ export function parseArgs(args: string[]): CliOptions {
     noCache: false,
     cleanCache: false,
     help: false,
+    theme: 'auto',
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -102,6 +104,17 @@ export function parseArgs(args: string[]): CliOptions {
       continue;
     }
 
+    // Theme options
+    if (arg === "-l" || arg === "--light") {
+      options.theme = 'light';
+      continue;
+    }
+
+    if (arg === "-d" || arg === "--dark") {
+      options.theme = 'dark';
+      continue;
+    }
+
     // Markdown files (positional arguments)
     if (!arg.startsWith("-")) {
       options.markdownFiles.push(arg);
@@ -130,14 +143,18 @@ Options:
   -s, --safari          Open with Safari
   -f, --firefox         Open with Firefox (default)
   -w, --width WIDTH     Maximum width for content in pixels (default: 980)
+  -l, --light           Force light mode theme
+  -d, --dark            Force dark mode theme
   -N, --no-cache        Skip cache and regenerate HTML
   -X, --clean-cache     Clean the cache directory
 
 Examples:
-  mdpreview README.md                    # Open in Firefox (default)
+  mdpreview README.md                    # Open in Firefox (default, auto theme)
   mdpreview foo.md bar.md                # Open multiple files
   mdpreview document.md -g               # Open in Google Chrome
   mdpreview document.md -s               # Open in Safari
+  mdpreview document.md -l               # Force light mode
+  mdpreview document.md -d               # Force dark mode
   mdpreview wide-content.md -w 1200     # Custom width
   mdpreview document.md -N               # Skip cache
   mdpreview -X                           # Clean all cache
@@ -193,8 +210,8 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
 
     // Generate complete HTML document
     const title = basename(markdownPath, ".md");
-    const styles = getGithubCSS(options.width);
-    const fullHtml = generateHtml(title, html, styles);
+    const styles = getGithubCSS(options.width, options.theme);
+    const fullHtml = generateHtml(title, html, styles, options.theme);
 
     // Write to cache
     const cachePath = writeCachedHtml(hash, fullHtml);
