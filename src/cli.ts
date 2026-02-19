@@ -117,7 +117,15 @@ export function parseArgs(args: string[]): CliOptions {
 
     // Markdown files (positional arguments)
     if (!arg.startsWith("-")) {
-      options.markdownFiles.push(arg);
+      // Handle trailing periods from copy-paste (e.g., "filename." at end of sentence)
+      let filename = arg;
+      if (filename.endsWith('.') && !existsSync(filename)) {
+        const withoutPeriod = filename.slice(0, -1);
+        if (existsSync(withoutPeriod)) {
+          filename = withoutPeriod;
+        }
+      }
+      options.markdownFiles.push(filename);
     }
   }
 
