@@ -10,6 +10,7 @@ A fast, lightweight CLI tool for converting Markdown to HTML and opening it in y
 - ✅ **Light/dark mode override** via `-l`/`-d` flags
 - ✅ **Lightning-fast** with Bun runtime and intelligent caching using SHA256 hashes
 - ✅ **Local image support** with automatic copying to cache
+- ✅ **Math rendering** via MathJax (inline `$...$` and display `$$...$$`)
 - ✅ **Mermaid diagrams** with interactive toggle between diagram and source code
 - ✅ **Syntax highlighting** for 100+ programming languages
 - ✅ **Multiple files** — open several markdown files at once
@@ -156,6 +157,23 @@ sequenceDiagram
     Browser->>User: Display result
 ```
 
+## Math Support
+
+MDPreview renders LaTeX math expressions using MathJax v3:
+
+- **Inline math** with `$...$` — e.g., `$E = mc^2$` renders as $E = mc^2$
+- **Display math** with `$$...$$` for centered equations
+- **Protected from markdown** — underscores and other markdown syntax inside math are preserved
+- **Code blocks unaffected** — `$` inside code fences and inline code is not treated as math
+
+### Example: Math Expressions
+
+Inline: The quadratic formula is $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$.
+
+Display math:
+
+$$\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}$$
+
 ## Installation
 
 ### Prerequisites
@@ -296,6 +314,7 @@ mdpreview/
 │   │   └── markdown.ts           # Markdown processing
 │   ├── processors/
 │   │   ├── images.ts             # Local image processor
+│   │   ├── math.ts               # Math expression processor
 │   │   └── mermaid.ts            # Mermaid diagram processor
 │   ├── rendering/
 │   │   ├── styles.ts             # GitHub-like CSS
@@ -316,6 +335,7 @@ mdpreview/
 - **Runtime**: Bun (fast JavaScript/TypeScript runtime)
 - **Markdown Parser**: marked with GitHub Flavored Markdown support
 - **Syntax Highlighting**: highlight.js (100+ languages)
+- **Math**: MathJax v3 via CDN
 - **Mermaid**: mermaid.js via CDN
 - **Testing**: Bun's built-in test runner + Playwright for E2E
 - **Type Safety**: TypeScript strict mode

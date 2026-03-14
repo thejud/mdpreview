@@ -7,6 +7,7 @@ import { getCacheDir, cleanCache, getCachedHtml, writeCachedHtml, shouldUseCache
 import { convertMarkdown } from "./core/markdown";
 import { LocalImageProcessor } from "./processors/images";
 import { MermaidProcessor } from "./processors/mermaid";
+import { protectMath, restoreMath } from "./processors/math";
 import { getGithubCSS } from "./rendering/styles";
 import { generateHtml } from "./rendering/template";
 import { openInBrowser, type BrowserOptions } from "./browser/launcher";
@@ -203,8 +204,11 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
     // Read markdown file
     const markdown = readFileSync(markdownPath, "utf-8");
 
+    // Protect math expressions before markdown processing
+    const { text: protectedMarkdown, expressions: mathExpressions } = protectMath(markdown);
+
     // Convert markdown to HTML
-    let html = convertMarkdown(markdown);
+    let html = convertMarkdown(protectedMarkdown);
 
     // Process images
     const sourceDir = dirname(markdownPath);
@@ -215,6 +219,9 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
     // Process mermaid diagrams
     const mermaidProcessor = new MermaidProcessor();
     html = mermaidProcessor.processMermaidBlocks(html);
+
+    // Restore math expressions with MathJax delimiters
+    html = restoreMath(html, mathExpressions);
 
     // Generate complete HTML document
     const title = basename(markdownPath, ".md");
