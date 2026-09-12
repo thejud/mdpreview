@@ -297,6 +297,21 @@ table tr:nth-child(2n) {
   background-color: #f6f8fa;
 }
 
+/* Frontmatter */
+.frontmatter-table {
+  margin-bottom: 24px;
+}
+
+.frontmatter-table th:first-child {
+  width: 20%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.frontmatter-table td {
+  word-break: break-word;
+}
+
 /* Blockquotes */
 blockquote {
   margin: 0 0 16px 0;

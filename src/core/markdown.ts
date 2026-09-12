@@ -8,6 +8,11 @@ export interface MarkdownOptions {
   gfm?: boolean;
 }
 
+interface FrontmatterEntry {
+  key: string;
+  value: string;
+}
+
 // Singleton configuration to avoid re-initialization
 let isConfigured = false;
 
@@ -42,6 +47,76 @@ function configureMarked(options: MarkdownOptions = {}): void {
 }
 
 /**
+ * Extract a YAML-style frontmatter block at the start of a Markdown document.
+ * This intentionally handles the flat metadata commonly used in Markdown
+ * documents without adding a YAML parser dependency.
+ */
+function extractFrontmatter(content: string): { entries: FrontmatterEntry[]; body: string } | null {
+  const match = content.match(/^(?:\uFEFF)?---[ \t]*\r?\n([\s\S]*?)\r?\n(?:---|\.\.\.)[ \t]*(?:\r?\n|$)/);
+  if (!match) {
+    return null;
+  }
+
+  const entries: FrontmatterEntry[] = [];
+  let currentEntry: FrontmatterEntry | undefined;
+
+  const frontmatterContent = match[1] ?? "";
+  for (const line of frontmatterContent.split(/\r?\n/)) {
+    if (!line.trim() || /^\s*#/.test(line)) {
+      continue;
+    }
+
+    const entryMatch = line.match(/^([A-Za-z0-9_.-]+)\s*:\s*(.*)$/);
+    if (entryMatch) {
+      const entry = { key: entryMatch[1] ?? "", value: entryMatch[2] ?? "" };
+      currentEntry = entry;
+      entries.push(entry);
+      continue;
+    }
+
+    // Keep indented YAML list items and multiline values in the same cell.
+    if (currentEntry && /^\s+/.test(line)) {
+      const continuation = line.trim().replace(/^-\s*/, "");
+      currentEntry.value = currentEntry.value
+        ? `${currentEntry.value}\n${continuation}`
+        : continuation;
+    }
+  }
+
+  return { entries, body: content.slice(match[0].length) };
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderFrontmatter(entries: FrontmatterEntry[]): string {
+  if (entries.length === 0) {
+    return "";
+  }
+
+  const rows = entries.map(({ key, value }) => {
+    const formattedValue = escapeHtml(value).replace(/\r?\n/g, "<br>");
+    return `    <tr><th scope="row">${escapeHtml(key)}</th><td>${formattedValue}</td></tr>`;
+  }).join("\n");
+
+  return `<table class="frontmatter-table">
+  <thead>
+    <tr><th scope="col">Key</th><th scope="col">Value</th></tr>
+  </thead>
+  <tbody>
+${rows}
+  </tbody>
+</table>
+`;
+}
+
+/**
  * Convert markdown content to HTML
  * @param content - Markdown content string
  * @param options - Conversion options
@@ -56,7 +131,11 @@ export function convertMarkdown(content: string, options: MarkdownOptions = {}):
   configureMarked(options);
 
   try {
-    return marked.parse(content) as string;
+    const frontmatter = extractFrontmatter(content);
+    const markdown = frontmatter?.entries.length ? frontmatter.body : content;
+    const frontmatterHtml = frontmatter?.entries.length ? renderFrontmatter(frontmatter.entries) : "";
+
+    return frontmatterHtml + (marked.parse(markdown) as string);
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Failed to convert markdown: ${error.message}`);

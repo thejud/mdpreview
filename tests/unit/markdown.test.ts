@@ -79,6 +79,26 @@ describe("convertMarkdown", () => {
     expect(html).toContain("Cell 1");
   });
 
+  test("renders YAML frontmatter as a table", () => {
+    const markdown = "---\ntitle: Frontmatter example\ntags: [markdown, metadata]\npublished: true\n---\n\n# Document\n";
+    const html = convertMarkdown(markdown);
+
+    expect(html).toContain('<table class="frontmatter-table">');
+    expect(html).toContain('<th scope="col">Key</th>');
+    expect(html).toContain('<th scope="row">title</th>');
+    expect(html).toContain("Frontmatter example");
+    expect(html).toContain("[markdown, metadata]");
+    expect(html).toContain("<h1>Document</h1>");
+    expect(html).not.toContain("<hr>");
+  });
+
+  test("escapes frontmatter values", () => {
+    const html = convertMarkdown("---\ntitle: <script>alert(1)</script>\n---\n");
+
+    expect(html).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(html).not.toContain("<script>alert(1)</script>");
+  });
+
   test("supports fenced code blocks", () => {
     const markdown = `
 \`\`\`javascript
