@@ -172,6 +172,17 @@ body {
   word-wrap: break-word;
 }
 
+.source-path {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.2;
+  opacity: 0.55;
+  margin-top: 48px;
+  padding-top: 8px;
+  border-top: 1px solid currentColor;
+  word-break: break-all;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   margin-top: 24px;

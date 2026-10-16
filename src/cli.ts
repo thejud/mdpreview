@@ -2,6 +2,7 @@
 
 import { resolve, dirname, basename } from "path";
 import { existsSync, readFileSync } from "fs";
+import { createHash } from "crypto";
 import { getFileHash } from "./core/hash";
 import { getCacheDir, cleanCache, getCachedHtml, writeCachedHtml, shouldUseCache } from "./core/cache";
 import { convertMarkdown } from "./core/markdown";
@@ -188,7 +189,7 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
 
   try {
     // Calculate content hash
-    const hash = getFileHash(markdownPath);
+    const hash = createHash("sha256").update(getFileHash(markdownPath)).update(markdownPath).digest("hex");
 
     // Check cache
     if (shouldUseCache(hash, options.noCache)) {
@@ -226,7 +227,7 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
     // Generate complete HTML document
     const title = basename(markdownPath, ".md");
     const styles = getGithubCSS(options.width, options.theme);
-    const fullHtml = generateHtml(title, html, styles, options.theme);
+    const fullHtml = generateHtml(title, html, styles, options.theme, markdownPath);
 
     // Write to cache
     const cachePath = writeCachedHtml(hash, fullHtml);

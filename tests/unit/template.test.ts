@@ -84,6 +84,19 @@ describe("generateHtml", () => {
     expect(html).toContain("Title");
   });
 
+  test("renders escaped source path footer after content", () => {
+    const html = generateHtml("Test", "<p>Content</p>", "<style>body{}</style>", "auto", "/tmp/a&b.md");
+
+    expect(html).toContain('<footer class="source-path">/tmp/a&amp;b.md</footer>');
+    expect(html.indexOf("source-path")).toBeGreaterThan(html.indexOf("<p>Content</p>"));
+  });
+
+  test("omits source path footer when not provided", () => {
+    const html = generateHtml("Test", "<p>Content</p>", "<style>body{}</style>");
+
+    expect(html).not.toContain('class="source-path"');
+  });
+
   test("handles empty content", () => {
     const html = generateHtml("Empty", "", "<style>body{}</style>");
 

@@ -4,9 +4,11 @@
  * @param content - Rendered markdown HTML content
  * @param styles - Complete <style> tag with CSS
  * @param theme - Theme mode: 'auto', 'light', or 'dark' (default: 'auto')
+ * @param sourcePath - Original file path, shown as a small footer at the bottom, below a thin rule (optional)
  * @returns Complete HTML5 document
  */
-export function generateHtml(title: string, content: string, styles: string, theme: 'auto' | 'light' | 'dark' = 'auto'): string {
+export function generateHtml(title: string, content: string, styles: string, theme: 'auto' | 'light' | 'dark' = 'auto', sourcePath?: string): string {
+  const pathFooter = sourcePath ? `\n    <footer class="source-path">${escapeHtml(sourcePath)}</footer>` : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +28,7 @@ export function generateHtml(title: string, content: string, styles: string, the
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-    ${content}
+    ${content}${pathFooter}
     <script>
       // Toggle source code visibility for mermaid diagrams
       document.querySelectorAll('.mermaid-toggle').forEach(button => {
