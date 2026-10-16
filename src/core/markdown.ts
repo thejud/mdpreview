@@ -27,7 +27,7 @@ function configureMarked(options: MarkdownOptions = {}): void {
   // Configure marked with GFM and syntax highlighting
   marked.setOptions({
     gfm,
-    breaks: true, // Convert \n to <br> to match GitHub behavior
+    breaks: false, // GitHub does not hard-break single newlines when rendering .md files
     highlight: highlight
       ? (code: string, lang: string) => {
           if (lang && hljs.getLanguage(lang)) {
