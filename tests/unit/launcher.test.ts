@@ -155,6 +155,47 @@ describe("getBrowserCommand", () => {
   });
 });
 
+describe("background flag", () => {
+  test("background: true produces open -g -a command", () => {
+    const options: BrowserOptions = { chrome: true, background: true };
+    const htmlPath = "/tmp/test.html";
+
+    const command = getBrowserCommand(htmlPath, options);
+
+    expect(command).toStartWith("open -g -a");
+    expect(command).toContain("Google Chrome");
+  });
+
+  test("background: false produces open -a without -g", () => {
+    const options: BrowserOptions = { chrome: true, background: false };
+    const htmlPath = "/tmp/test.html";
+
+    const command = getBrowserCommand(htmlPath, options);
+
+    expect(command).toStartWith('open -a');
+    expect(command).not.toContain("-g");
+  });
+
+  test("background omitted produces open -a without -g", () => {
+    const options: BrowserOptions = { chrome: true };
+    const htmlPath = "/tmp/test.html";
+
+    const command = getBrowserCommand(htmlPath, options);
+
+    expect(command).toStartWith('open -a');
+    expect(command).not.toContain("-g");
+  });
+
+  test("background flag combines with browser selection", () => {
+    const options: BrowserOptions = { safari: true, background: true };
+    const htmlPath = "/tmp/test.html";
+
+    const command = getBrowserCommand(htmlPath, options);
+
+    expect(command).toBe('open -g -a "Safari" "/tmp/test.html"');
+  });
+});
+
 describe("BrowserOptions type", () => {
   test("accepts all browser flags", () => {
     const options: BrowserOptions = {

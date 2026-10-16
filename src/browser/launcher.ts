@@ -5,6 +5,7 @@ export interface BrowserOptions {
   safari?: boolean;
   firefox?: boolean;
   browser?: string;
+  background?: boolean;
 }
 
 /**
@@ -18,8 +19,8 @@ export function getBrowserCommand(htmlPath: string, options: BrowserOptions): st
   const quotedPath = `"${htmlPath}"`;
   const quotedBrowser = `"${browserName}"`;
 
-  // macOS: use open -a
-  return `open -a ${quotedBrowser} ${quotedPath}`;
+  // macOS: use open -a, with optional -g for background (no focus steal)
+  return `open ${options.background ? '-g ' : ''}-a ${quotedBrowser} ${quotedPath}`;
 }
 
 /**

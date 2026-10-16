@@ -239,6 +239,37 @@ describe("parseArgs", () => {
   });
 });
 
+describe("--no-focus flag", () => {
+  test("parses -G short flag", () => {
+    const args = ["-G", "README.md"];
+    const options = parseArgs(args);
+
+    expect(options.browser.background).toBe(true);
+  });
+
+  test("parses --no-focus long flag", () => {
+    const args = ["--no-focus", "README.md"];
+    const options = parseArgs(args);
+
+    expect(options.browser.background).toBe(true);
+  });
+
+  test("background defaults to undefined when not specified", () => {
+    const args = ["README.md"];
+    const options = parseArgs(args);
+
+    expect(options.browser.background).toBeUndefined();
+  });
+
+  test("combines with other browser flags", () => {
+    const args = ["-g", "-G", "README.md"];
+    const options = parseArgs(args);
+
+    expect(options.browser.chrome).toBe(true);
+    expect(options.browser.background).toBe(true);
+  });
+});
+
 describe("CliOptions type", () => {
   test("has correct structure", () => {
     const options: CliOptions = {

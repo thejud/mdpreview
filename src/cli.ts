@@ -78,6 +78,12 @@ export function parseArgs(args: string[]): CliOptions {
       continue;
     }
 
+    // Background flag (no focus steal)
+    if (arg === "-G" || arg === "--no-focus") {
+      options.browser.background = true;
+      continue;
+    }
+
     // Browser option with value
     if (arg === "-b" || arg === "--browser") {
       options.browser.browser = args[++i];
@@ -152,6 +158,7 @@ Options:
   -g, --chrome          Open with Google Chrome
   -s, --safari          Open with Safari
   -f, --firefox         Open with Firefox (default)
+  -G, --no-focus        Open browser in background (don't steal focus)
   -w, --width WIDTH     Maximum width for content in pixels (default: 980)
   -l, --light           Force light mode theme
   -d, --dark            Force dark mode theme
