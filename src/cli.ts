@@ -1,14 +1,13 @@
 #!/usr/bin/env bun
 
 import { resolve, dirname, basename } from "path";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, statSync } from "fs";
 import { createHash } from "crypto";
 import { getFileHash } from "./core/hash";
 import { getCacheDir, cleanCache, getCachedHtml, writeCachedHtml, shouldUseCache } from "./core/cache";
 import { convertMarkdown } from "./core/markdown";
 import { LocalImageProcessor } from "./processors/images";
 import { MermaidProcessor } from "./processors/mermaid";
-import { protectMath, restoreMath } from "./processors/math";
 import { getGithubCSS } from "./rendering/styles";
 import { generateHtml } from "./rendering/template";
 import { openInBrowser, type BrowserOptions } from "./browser/launcher";
@@ -195,8 +194,14 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
   }
 
   try {
+    const sourceMtime = statSync(markdownPath).mtime.toISOString();
+
     // Calculate content hash
-    const hash = createHash("sha256").update(getFileHash(markdownPath)).update(markdownPath).digest("hex");
+    const hash = createHash("sha256")
+      .update(getFileHash(markdownPath))
+      .update(markdownPath)
+      .update(sourceMtime)
+      .digest("hex");
 
     // Check cache
     if (shouldUseCache(hash, options.noCache)) {
@@ -212,11 +217,8 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
     // Read markdown file
     const markdown = readFileSync(markdownPath, "utf-8");
 
-    // Protect math expressions before markdown processing
-    const { text: protectedMarkdown, expressions: mathExpressions } = protectMath(markdown);
-
     // Convert markdown to HTML
-    let html = convertMarkdown(protectedMarkdown);
+    let html = convertMarkdown(markdown);
 
     // Process images
     const sourceDir = dirname(markdownPath);
@@ -228,13 +230,10 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
     const mermaidProcessor = new MermaidProcessor();
     html = mermaidProcessor.processMermaidBlocks(html);
 
-    // Restore math expressions with MathJax delimiters
-    html = restoreMath(html, mathExpressions);
-
     // Generate complete HTML document
     const title = basename(markdownPath, ".md");
     const styles = getGithubCSS(options.width, options.theme);
-    const fullHtml = generateHtml(title, html, styles, options.theme, markdownPath);
+    const fullHtml = generateHtml(title, html, styles, options.theme, markdownPath, sourceMtime);
 
     // Write to cache
     const cachePath = writeCachedHtml(hash, fullHtml);

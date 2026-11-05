@@ -4,11 +4,14 @@
  * @param content - Rendered markdown HTML content
  * @param styles - Complete <style> tag with CSS
  * @param theme - Theme mode: 'auto', 'light', or 'dark' (default: 'auto')
- * @param sourcePath - Original file path, shown as a small footer at the bottom, below a thin rule (optional)
+ * @param sourcePath - Original file path, shown in the footer (optional)
+ * @param sourceMtime - Original file modification time in ISO 8601 format (optional)
  * @returns Complete HTML5 document
  */
-export function generateHtml(title: string, content: string, styles: string, theme: 'auto' | 'light' | 'dark' = 'auto', sourcePath?: string): string {
-  const pathFooter = sourcePath ? `\n    <footer class="source-path">${escapeHtml(sourcePath)}</footer>` : '';
+export function generateHtml(title: string, content: string, styles: string, theme: 'auto' | 'light' | 'dark' = 'auto', sourcePath?: string, sourceMtime?: string): string {
+  const pathFooter = sourcePath
+    ? `\n    <footer class="source-path">${escapeHtml(sourcePath)}${sourceMtime ? ` · ${escapeHtml(sourceMtime)}` : ''}</footer>`
+    : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,12 +23,6 @@ export function generateHtml(title: string, content: string, styles: string, the
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
       mermaid.initialize({ startOnLoad: true, theme: 'default' });
     </script>
-    <script>
-      MathJax = {
-        tex: { inlineMath: [['\\\\(', '\\\\)']], displayMath: [['\\\\[', '\\\\]']] }
-      };
-    </script>
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
     ${content}${pathFooter}
