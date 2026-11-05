@@ -1,3 +1,5 @@
+import { render } from "pele";
+
 export interface MermaidBlock {
   code: string;
   fullMatch: string;
@@ -31,14 +33,29 @@ export class MermaidProcessor {
   }
 
   /**
+   * Render mermaid code to inline SVG at build time (no client-side JS).
+   * On a parse/render failure, show the error above the source instead of failing the page.
+   * @param code - Mermaid diagram code
+   * @returns SVG markup, or an error notice
+   */
+  private async renderDiagram(code: string): Promise<string> {
+    try {
+      return (await render(code)).svg;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      return `<pre class="mermaid-error">Mermaid render error: ${this.escapeHtml(message)}</pre>`;
+    }
+  }
+
+  /**
    * Wrap a mermaid code block with container, diagram, source, and toggle button
    * @param code - Mermaid diagram code
    * @returns HTML structure with mermaid container
    */
-  wrapMermaidBlock(code: string): string {
+  async wrapMermaidBlock(code: string): Promise<string> {
     return `<div class="mermaid-container">
   <div class="mermaid-diagram">
-    <pre class="mermaid">${code}</pre>
+    ${await this.renderDiagram(code)}
   </div>
   <pre class="mermaid-source" style="display: none">
     <code>${this.escapeHtml(code)}</code>
@@ -52,7 +69,7 @@ export class MermaidProcessor {
    * @param html - HTML string with mermaid code blocks
    * @returns HTML with wrapped mermaid blocks
    */
-  processMermaidBlocks(html: string): string {
+  async processMermaidBlocks(html: string): Promise<string> {
     if (!html) return "";
 
     const blocks = this.detectMermaidBlocks(html);
@@ -61,8 +78,9 @@ export class MermaidProcessor {
     let result = html;
 
     for (const block of blocks) {
-      const wrapped = this.wrapMermaidBlock(block.code);
-      result = result.replace(block.fullMatch, wrapped);
+      const wrapped = await this.wrapMermaidBlock(block.code);
+      // Function replacer: SVG may contain "$&"-style sequences
+      result = result.replace(block.fullMatch, () => wrapped);
     }
 
     return result;

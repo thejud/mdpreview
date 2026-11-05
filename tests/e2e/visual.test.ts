@@ -36,7 +36,7 @@ async function generateHtmlWithoutBrowser(markdownPath: string): Promise<string>
 
   // Process mermaid
   const mermaidProcessor = new MermaidProcessor();
-  html = mermaidProcessor.processMermaidBlocks(html);
+  html = await mermaidProcessor.processMermaidBlocks(html);
 
   // Generate full HTML
   const title = basename(markdownPath, ".md");

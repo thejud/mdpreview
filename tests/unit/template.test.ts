@@ -45,19 +45,12 @@ describe("generateHtml", () => {
     expect(html).toContain(content);
   });
 
-  test("includes mermaid.js CDN script", () => {
+  test("loads no external scripts (diagrams are pre-rendered)", () => {
     const html = generateHtml("Test", "<p>Content</p>", "<style>body{}</style>");
 
-    expect(html).toContain("mermaid");
-    expect(html).toContain("cdn.jsdelivr.net");
-    expect(html).toContain('type="module"');
-  });
-
-  test("includes mermaid initialization", () => {
-    const html = generateHtml("Test", "<p>Content</p>", "<style>body{}</style>");
-
-    expect(html).toContain("mermaid.initialize");
-    expect(html).toContain("startOnLoad: true");
+    expect(html).not.toContain("cdn.jsdelivr.net");
+    expect(html).not.toContain("mermaid.initialize");
+    expect(html).not.toMatch(/<script[^>]+src=/);
   });
 
   test("includes toggle button JavaScript", () => {

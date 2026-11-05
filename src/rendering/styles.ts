@@ -138,6 +138,19 @@ ${darkModeIndent}  background-color: #033a16;
 ${darkModeIndent}}
 
 ${darkModeIndent}.mermaid-diagram {
+${darkModeIndent}  --pele-bg: #161b22;
+${darkModeIndent}  --pele-fg: #e6edf3;
+${darkModeIndent}  --pele-muted: #7d8590;
+${darkModeIndent}  --pele-line: #8b949e;
+${darkModeIndent}  --pele-surface: #21262d;
+${darkModeIndent}  --pele-surface-alt: #161b22;
+${darkModeIndent}  --pele-border: #484f58;
+${darkModeIndent}  --pele-accent: #58a6ff;
+${darkModeIndent}  --pele-critical: #f85149;
+${darkModeIndent}  --pele-error: #f85149;
+${darkModeIndent}}
+
+${darkModeIndent}.mermaid-diagram {
 ${darkModeIndent}  background-color: #161b22;
 ${darkModeIndent}  border-color: #30363d;
 ${darkModeIndent}}
@@ -444,6 +457,33 @@ input[type="checkbox"] {
 /* Mermaid diagram container styles */
 .mermaid-container {
   margin: 16px 0;
+}
+
+.mermaid-diagram {
+  /* Pele theme variables: GitHub palette */
+  --pele-bg: #ffffff;
+  --pele-fg: #1f2328;
+  --pele-muted: #656d76;
+  --pele-line: #57606a;
+  --pele-surface: #f6f8fa;
+  --pele-surface-alt: #eaeef2;
+  --pele-border: #d0d7de;
+  --pele-accent: #0969da;
+  --pele-critical: #cf222e;
+  --pele-error: #cf222e;
+  --pele-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --pele-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  overflow-x: auto;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-error {
+  color: #cf222e;
+  white-space: pre-wrap;
 }
 
 .mermaid-diagram {

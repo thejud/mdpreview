@@ -228,7 +228,7 @@ async function processFile(markdownFile: string, options: CliOptions): Promise<s
 
     // Process mermaid diagrams
     const mermaidProcessor = new MermaidProcessor();
-    html = mermaidProcessor.processMermaidBlocks(html);
+    html = await mermaidProcessor.processMermaidBlocks(html);
 
     // Generate complete HTML document
     const title = basename(markdownPath, ".md");
